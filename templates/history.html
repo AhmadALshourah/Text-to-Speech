@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>سجل التحويلات — VoiceForge</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <link rel="manifest" href="/static/manifest.json" />
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="brand" href="/">
+      <span class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9A9 9 0 0 1 3 12a9 9 0 0 1 9-9zm0 2a7 7 0 1 0 0 14A7 7 0 0 0 12 5zm-1 3h2v8h-2zm-4 2h2v4H7zm8 0h2v4h-2z"/>
+        </svg>
+      </span>
+      VoiceForge
+    </a>
+    <div class="topbar-right">
+      <a href="/" class="btn btn-ghost">🎙️ التحويل</a>
+      <a href="/profile" class="btn btn-ghost">👤 الملف</a>
+      <button class="btn btn-icon btn-ghost" id="themeToggle" type="button">🌙</button>
+      <button class="btn btn-ghost" id="logoutBtn" type="button">خروج</button>
+    </div>
+  </header>
+
+  <main class="container page-wrap">
+
+    <section class="hero" style="padding-block-end: 1rem">
+      <h1>📋 سجل <span class="grad">التحويلات</span></h1>
+      <p>جميع عمليات تحويل النص إلى صوت التي أجريتها.</p>
+    </section>
+
+    <div class="card">
+      <div class="card-body">
+
+        <!-- Empty state -->
+        <div id="emptyState" class="empty-state" style="display:none">
+          <div class="empty-icon">🎙️</div>
+          <p>لا توجد تحويلات بعد.</p>
+          <a href="/" class="btn btn-primary">ابدأ أول تحويل</a>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingState" class="empty-state">
+          <span class="spinner"><span></span><span></span><span></span><span></span><span></span></span>
+          <p style="margin-top:1rem">جارٍ التحميل…</p>
+        </div>
+
+        <!-- Table -->
+        <div id="historyTableWrap" style="display:none">
+          <table class="history-table" aria-label="سجل التحويلات">
+            <thead>
+              <tr>
+                <th>النص</th>
+                <th>الصوت</th>
+                <th>الإعدادات</th>
+                <th>التاريخ</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="pagination-row" style="display:none">
+          <button class="btn btn-ghost" id="prevBtn" onclick="changePage(-1)" disabled>
+            ← السابق
+          </button>
+          <span id="pageInfo" class="page-info">الصفحة 1</span>
+          <button class="btn btn-ghost" id="nextBtn" onclick="changePage(1)">
+            التالي →
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/static/js/api.js"></script>
+  <script>
+    let currentPage = 1;
+    const PER_PAGE  = 20;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (!Auth.isLoggedIn()) { location.href = "/login"; return; }
+
+      document.getElementById("logoutBtn")?.addEventListener("click", () => {
+        Auth.clear(); location.href = "/login";
+      });
+
+      await loadHistory();
+    });
+
+    async function loadHistory() {
+      document.getElementById("loadingState").style.display  = "flex";
+      document.getElementById("historyTableWrap").style.display = "none";
+      document.getElementById("emptyState").style.display    = "none";
+      document.getElementById("pagination").style.display    = "none";
+
+      try {
+        const data = await apiRequest(
+          `/api/history?page=${currentPage}&per_page=${PER_PAGE}`,
+          { auth: true }
+        );
+        const rows  = data.items;
+        const total = data.total;
+        const pages = data.pages;
+
+        document.getElementById("loadingState").style.display = "none";
+
+        if (!rows.length && currentPage === 1) {
+          document.getElementById("emptyState").style.display = "flex";
+          return;
+        }
+
+        renderRows(rows);
+        document.getElementById("historyTableWrap").style.display = "block";
+
+        if (pages > 1) {
+          document.getElementById("pagination").style.display = "flex";
+        }
+
+        document.getElementById("prevBtn").disabled = currentPage === 1;
+        document.getElementById("nextBtn").disabled = currentPage >= pages;
+        document.getElementById("pageInfo").textContent =
+          `الصفحة ${currentPage} من ${pages} (${total} تحويل)`;
+
+      } catch (err) {
+        document.getElementById("loadingState").style.display = "none";
+        toast(err.message || "فشل تحميل السجل", "error");
+      }
+    }
+
+    function renderRows(rows) {
+      const tbody = document.getElementById("historyBody");
+      tbody.innerHTML = "";
+
+      rows.forEach((r) => {
+        const tr = document.createElement("tr");
+
+        const preview = r.text_preview
+          ? (r.text_preview.length > 60 ? r.text_preview.slice(0, 60) + "…" : r.text_preview)
+          : "—";
+
+        const date = new Date(r.created_at).toLocaleString("ar-SA", {
+          year: "numeric", month: "short", day: "numeric",
+          hour: "2-digit", minute: "2-digit",
+        });
+
+        tr.innerHTML = `
+          <td class="hist-text" title="${escHtml(r.text_preview || '')}">${escHtml(preview)}</td>
+          <td><span class="voice-badge">${escHtml(r.voice.split("-").slice(2).join(" "))}</span></td>
+          <td class="hist-settings">${r.rate} · ${r.volume}</td>
+          <td class="hist-date">${date}</td>
+          <td>
+            <button class="btn btn-ghost btn-sm" title="حذف هذا السجل"
+                    onclick="deleteEntry(${r.id}, this)">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function deleteEntry(id, btn) {
+      btn.disabled = true;
+      try {
+        await apiRequest(`/api/history/${id}`, { method: "DELETE", auth: true });
+        btn.closest("tr").remove();
+        toast("تم حذف السجل", "info", 2000);
+      } catch (err) {
+        btn.disabled = false;
+        toast(err.message || "فشل الحذف", "error");
+      }
+    }
+
+    function changePage(delta) {
+      currentPage = Math.max(1, currentPage + delta);
+      loadHistory();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+  </script>
+</body>
+</html>

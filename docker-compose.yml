@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    container_name: voiceforge
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-change-me-before-deploy}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      - DATABASE_URL=sqlite:///./app.db
+      - AUDIO_OUTPUT_DIR=audio_output
+    volumes:
+      # Persist database and audio output outside the container
+      - voiceforge_db:/app/app.db
+      - voiceforge_audio:/app/audio_output
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  voiceforge_db:
+  voiceforge_audio:

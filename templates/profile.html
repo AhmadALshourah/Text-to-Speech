@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>الملف الشخصي — VoiceForge</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <link rel="manifest" href="/static/manifest.json" />
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="brand" href="/">
+      <span class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9A9 9 0 0 1 3 12a9 9 0 0 1 9-9zm0 2a7 7 0 1 0 0 14A7 7 0 0 0 12 5zm-1 3h2v8h-2zm-4 2h2v4H7zm8 0h2v4h-2z"/>
+        </svg>
+      </span>
+      VoiceForge
+    </a>
+    <div class="topbar-right">
+      <a href="/" class="btn btn-ghost">🎙️ التحويل</a>
+      <a href="/history" class="btn btn-ghost">📋 السجل</a>
+      <button class="btn btn-icon btn-ghost" id="themeToggle" type="button">🌙</button>
+      <button class="btn btn-ghost" id="logoutBtn" type="button">خروج</button>
+    </div>
+  </header>
+
+  <main class="container page-wrap">
+
+    <section class="hero" style="padding-block-end:1rem">
+      <h1>👤 الملف <span class="grad">الشخصي</span></h1>
+    </section>
+
+    <!-- Profile info card -->
+    <div class="card profile-card" id="profileCard" style="display:none">
+      <div class="card-body">
+
+        <div class="profile-header">
+          <div class="avatar-circle" id="avatarCircle">…</div>
+          <div>
+            <div class="profile-username" id="profileUsername">…</div>
+            <div class="profile-email" id="profileEmail">…</div>
+            <div class="profile-joined" id="profileJoined">…</div>
+          </div>
+        </div>
+
+        <!-- Stats strip -->
+        <div class="stats-strip" style="margin-top:1.5rem">
+          <div class="stat-item">
+            <span>🔄</span>
+            <span id="statTotal">0</span>
+            <small>تحويل</small>
+          </div>
+          <div class="stat-item">
+            <span>📝</span>
+            <span id="statChars">0</span>
+            <small>حرف هذا الشهر</small>
+          </div>
+          <div class="stat-item">
+            <span>📊</span>
+            <span id="statQuota">0%</span>
+            <small>من الحصة الشهرية</small>
+          </div>
+        </div>
+
+        <!-- Quota bar -->
+        <div class="quota-wrap">
+          <div class="quota-label">
+            <span>الحصة الشهرية</span>
+            <span id="quotaText">0 / 500,000 حرف</span>
+          </div>
+          <div class="quota-bar">
+            <div class="quota-fill" id="quotaFill" style="width:0%"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Change password card -->
+    <div class="card" style="margin-top:1.5rem">
+      <div class="card-body">
+        <h2 class="section-label" style="margin-bottom:1.25rem">🔒 تغيير كلمة المرور</h2>
+
+        <form id="passwordForm" novalidate>
+          <div class="field">
+            <label for="currentPwd">كلمة المرور الحالية</label>
+            <div class="input-wrap">
+              <input class="input" type="password" id="currentPwd"
+                     placeholder="••••••••" autocomplete="current-password" required />
+              <span class="input-icon">🔒</span>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="newPwd">كلمة المرور الجديدة</label>
+              <div class="input-wrap">
+                <input class="input" type="password" id="newPwd"
+                       placeholder="6 أحرف على الأقل"
+                       autocomplete="new-password" minlength="6" required />
+                <span class="input-icon">🔑</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="confirmPwd">تأكيد كلمة المرور</label>
+              <div class="input-wrap">
+                <input class="input" type="password" id="confirmPwd"
+                       placeholder="أعد الكتابة"
+                       autocomplete="new-password" minlength="6" required />
+                <span class="input-icon">🔑</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="savePwdBtn"
+                  style="margin-top:.5rem">
+            تحديث كلمة المرور
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="card danger-card" style="margin-top:1.5rem">
+      <div class="card-body">
+        <h2 class="section-label danger-title">⚠️ منطقة الخطر</h2>
+        <p class="danger-desc">
+          حذف الحساب نهائي ولا يمكن التراجع عنه.
+          سيتم حذف جميع بياناتك وسجل تحويلاتك بشكل دائم.
+        </p>
+        <button type="button" class="btn btn-danger" id="deleteAccountBtn">
+          🗑️ حذف حسابي نهائياً
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/static/js/api.js"></script>
+  <script>
+    const MONTHLY_LIMIT = 500_000;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (!Auth.isLoggedIn()) { location.href = "/login"; return; }
+
+      document.getElementById("logoutBtn")?.addEventListener("click", () => {
+        Auth.clear(); location.href = "/login";
+      });
+
+      await loadProfile();
+
+      document.getElementById("passwordForm")
+        .addEventListener("submit", handlePasswordChange);
+
+      document.getElementById("deleteAccountBtn")
+        .addEventListener("click", handleDeleteAccount);
+    });
+
+    /* ── Load profile ────────────────────────────────────────────────────── */
+    async function loadProfile() {
+      try {
+        const p = await apiRequest("/api/auth/profile", { auth: true });
+
+        document.getElementById("avatarCircle").textContent =
+          p.username.slice(0, 2).toUpperCase();
+        document.getElementById("profileUsername").textContent = p.username;
+        document.getElementById("profileEmail").textContent   = p.email;
+
+        const joined = new Date(p.created_at).toLocaleDateString("ar-SA", {
+          year: "numeric", month: "long", day: "numeric",
+        });
+        document.getElementById("profileJoined").textContent = `انضم في ${joined}`;
+
+        document.getElementById("statTotal").textContent =
+          p.total_conversions.toLocaleString("ar");
+        document.getElementById("statChars").textContent =
+          p.monthly_chars_used.toLocaleString("ar");
+
+        const pct = Math.min(100, (p.monthly_chars_used / MONTHLY_LIMIT) * 100).toFixed(1);
+        document.getElementById("statQuota").textContent  = pct + "%";
+        document.getElementById("quotaText").textContent  =
+          `${p.monthly_chars_used.toLocaleString("ar")} / ${MONTHLY_LIMIT.toLocaleString("ar")} حرف`;
+        document.getElementById("quotaFill").style.width  = pct + "%";
+        document.getElementById("quotaFill").style.background =
+          pct > 80 ? "var(--danger)" : pct > 60 ? "#f59e0b" : "var(--accent)";
+
+        document.getElementById("profileCard").style.display = "block";
+      } catch (err) {
+        toast(err.message || "فشل تحميل الملف الشخصي", "error");
+      }
+    }
+
+    /* ── Change password ─────────────────────────────────────────────────── */
+    async function handlePasswordChange(e) {
+      e.preventDefault();
+      const btn     = document.getElementById("savePwdBtn");
+      const current = document.getElementById("currentPwd").value;
+      const newPwd  = document.getElementById("newPwd").value;
+      const confirm = document.getElementById("confirmPwd").value;
+
+      if (newPwd !== confirm) {
+        toast("كلمتا المرور الجديدتان غير متطابقتين", "error");
+        return;
+      }
+      if (newPwd.length < 6) {
+        toast("كلمة المرور يجب أن تكون 6 أحرف على الأقل", "error");
+        return;
+      }
+
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner"><span></span><span></span><span></span><span></span><span></span></span>&nbsp;جارٍ الحفظ…`;
+
+      try {
+        await apiRequest("/api/auth/password", {
+          method: "PATCH",
+          auth: true,
+          body: { current_password: current, new_password: newPwd },
+        });
+        toast("تم تحديث كلمة المرور بنجاح ✅", "success");
+        e.target.reset();
+      } catch (err) {
+        toast(err.message || "فشل تحديث كلمة المرور", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+      }
+    }
+
+    /* ── Delete account ──────────────────────────────────────────────────── */
+    async function handleDeleteAccount() {
+      const confirmed = window.confirm(
+        "هل أنت متأكد تماماً؟\n\nسيتم حذف حسابك وجميع بياناتك بشكل نهائي ولا يمكن التراجع."
+      );
+      if (!confirmed) return;
+
+      try {
+        await apiRequest("/api/auth/account", { method: "DELETE", auth: true });
+        Auth.clear();
+        toast("تم حذف حسابك. وداعاً 👋", "info", 3000);
+        setTimeout(() => (location.href = "/register"), 2000);
+      } catch (err) {
+        toast(err.message || "فشل حذف الحساب", "error");
+      }
+    }
+  </script>
+</body>
+</html>

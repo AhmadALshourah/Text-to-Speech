@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>إنشاء حساب — VoiceForge</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body>
+
+  <button class="btn btn-icon btn-ghost auth-theme-btn" id="themeToggle"
+          type="button" title="تبديل المظهر">🌙</button>
+
+  <div class="auth-page">
+
+    <!-- ── Visual Panel ── -->
+    <div class="auth-visual" dir="rtl">
+      <div class="auth-visual-content">
+
+        <div class="auth-logo">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9A9 9 0 0 1 3 12a9 9 0 0 1 9-9zm0 2a7 7 0 1 0 0 14A7 7 0 0 0 12 5zm-1 3h2v8h-2zm-4 2h2v4H7zm8 0h2v4h-2z"/>
+          </svg>
+        </div>
+
+        <h2 class="auth-tagline">
+          ابدأ رحلتك مع<br/>
+          <span class="grad">VoiceForge</span>
+        </h2>
+
+        <p class="auth-desc">
+          انضم مجاناً واستمتع بتجربة تحويل
+          النص إلى كلام طبيعي بأكثر من 12 صوتاً.
+        </p>
+
+        <ul class="auth-features">
+          <li>
+            <span class="feat-icon">🌍</span>
+            دعم العربية والإنجليزية وأكثر
+          </li>
+          <li>
+            <span class="feat-icon">🎚️</span>
+            تحكم كامل بالسرعة ومستوى الصوت
+          </li>
+          <li>
+            <span class="feat-icon">💾</span>
+            تحميل الملف الصوتي مباشرةً
+          </li>
+        </ul>
+
+        <div class="deco-wave">
+          <span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Form Panel ── -->
+    <div class="auth-form-panel" dir="rtl">
+      <div class="auth-form-inner">
+
+        <div class="auth-head">
+          <h1>أنشئ حسابك ✨</h1>
+          <p>مجاني تماماً — لا بطاقة ائتمانية مطلوبة</p>
+        </div>
+
+        <form id="registerForm" novalidate>
+
+          <div class="field">
+            <label for="username">اسم المستخدم</label>
+            <div class="input-wrap">
+              <input class="input" type="text" id="username"
+                     placeholder="مثال: ahmad_dev"
+                     autocomplete="username"
+                     minlength="3" maxlength="50" required />
+              <span class="input-icon">👤</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email">البريد الإلكتروني</label>
+            <div class="input-wrap">
+              <input class="input" type="email" id="email"
+                     placeholder="you@example.com"
+                     autocomplete="email" required />
+              <span class="input-icon">✉️</span>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="password">كلمة المرور</label>
+              <div class="input-wrap">
+                <input class="input" type="password" id="password"
+                       placeholder="6 أحرف على الأقل"
+                       autocomplete="new-password"
+                       minlength="6" required />
+                <span class="input-icon">🔒</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="confirm">تأكيد كلمة المرور</label>
+              <div class="input-wrap">
+                <input class="input" type="password" id="confirm"
+                       placeholder="أعد الكتابة"
+                       autocomplete="new-password"
+                       minlength="6" required />
+                <span class="input-icon">🔑</span>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" id="submitBtn"
+                  style="margin-top:.5rem">
+            إنشاء الحساب
+          </button>
+
+        </form>
+
+        <p class="foot-link">
+          لديك حساب بالفعل؟
+          <a href="/login">سجّل الدخول</a>
+        </p>
+
+      </div>
+    </div>
+
+  </div><!-- /auth-page -->
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/auth.js"></script>
+</body>
+</html>

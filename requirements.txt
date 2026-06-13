@@ -1,0 +1,27 @@
+# Web framework
+fastapi
+uvicorn[standard]
+
+# Text-to-Speech engine (free, no API key required)
+edge-tts
+
+# Database (ORM)
+sqlalchemy
+
+# Authentication & security
+bcrypt
+PyJWT
+
+# Settings & validation
+pydantic
+pydantic-settings
+email-validator
+
+# Form / multipart support for FastAPI
+python-multipart
+
+# Environment variables
+python-dotenv
+
+# Rate limiting (IDEA-13)
+slowapi
