@@ -1,10 +1,17 @@
 /* =========================================================================
-   api.js — Shared utilities: token management, fetch wrapper,
-            theme, toasts, background orbs, button ripple.
+   api.js — Shared utilities
+   - Auth helpers (token storage, session management)
+   - Fetch wrapper with auto-refresh (IDEA-14)
+   - i18n system — Arabic / English (IDEA-35)
+   - Toast notifications
+   - Theme (light / dark)
+   - Animated background orbs
+   - Button ripple effect
    ========================================================================= */
 
 const TOKEN_KEY = "vf_token";
 const USER_KEY  = "vf_user";
+const LANG_KEY  = "vf_lang";
 
 /* ── Auth helpers ─────────────────────────────────────────────────────────── */
 const Auth = {
@@ -28,8 +35,60 @@ const Auth = {
   isLoggedIn() { return !!localStorage.getItem(TOKEN_KEY); },
 };
 
+/* ── Token freshness (client-side, no network) ───────────────────────────── */
+function isTokenFresh(minSecondsLeft = 60) {
+  const token = Auth.getToken();
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.exp > 0 && Date.now() / 1000 < payload.exp - minSecondsLeft;
+  } catch {
+    return false;
+  }
+}
+
+/* ── Refresh token (IDEA-14) ─────────────────────────────────────────────── */
+let _refreshPromise = null;  // deduplicate concurrent refresh calls
+
+async function refreshAccessToken() {
+  if (_refreshPromise) return _refreshPromise;
+
+  _refreshPromise = (async () => {
+    try {
+      const res = await fetch("/api/auth/refresh", {
+        method: "POST",
+        credentials: "include",   // send the HttpOnly refresh cookie
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) {
+        Auth.clear();
+        return false;
+      }
+      const data = await res.json();
+      Auth.setSession(data.access_token, data.user);
+      return true;
+    } catch {
+      Auth.clear();
+      return false;
+    } finally {
+      _refreshPromise = null;
+    }
+  })();
+
+  return _refreshPromise;
+}
+
 /* ── Generic fetch wrapper ───────────────────────────────────────────────── */
 async function apiRequest(path, { method = "GET", body, auth = false } = {}) {
+  // Proactively refresh if token expires within 60 seconds
+  if (auth && !isTokenFresh(60)) {
+    const ok = await refreshAccessToken();
+    if (!ok && auth) {
+      location.href = "/login";
+      throw new Error("انتهت الجلسة.");
+    }
+  }
+
   const headers = { "Content-Type": "application/json" };
   if (auth) {
     const t = Auth.getToken();
@@ -39,9 +98,31 @@ async function apiRequest(path, { method = "GET", body, auth = false } = {}) {
   const res = await fetch(path, {
     method,
     headers,
+    credentials: "include",
     body: body ? JSON.stringify(body) : undefined,
   });
 
+  // On 401 — try one silent refresh, then retry
+  if (res.status === 401 && auth) {
+    const ok = await refreshAccessToken();
+    if (!ok) {
+      location.href = "/login";
+      throw new Error("انتهت الجلسة.");
+    }
+    // Retry once with fresh token
+    const t2 = Auth.getToken();
+    const headers2 = { "Content-Type": "application/json", "Authorization": `Bearer ${t2}` };
+    const res2 = await fetch(path, {
+      method, headers: headers2, credentials: "include",
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return _handleResponse(res2);
+  }
+
+  return _handleResponse(res);
+}
+
+async function _handleResponse(res) {
   if (!res.ok) {
     let message = `خطأ (${res.status})`;
     try {
@@ -55,9 +136,75 @@ async function apiRequest(path, { method = "GET", body, auth = false } = {}) {
     if (res.status === 401) Auth.clear();
     throw new Error(message);
   }
-
   return res.status === 204 ? null : res.json();
 }
+
+/* ── i18n — IDEA-35 ──────────────────────────────────────────────────────── */
+const i18n = {
+  _t: {},
+  _lang: "ar",
+
+  async init() {
+    const saved = localStorage.getItem(LANG_KEY) || "ar";
+    await this.setLang(saved, false);   // false = don't re-apply on first load (done below)
+    this.apply();
+  },
+
+  async setLang(lang, applyNow = true) {
+    try {
+      const r = await fetch(`/static/i18n/${lang}.json`);
+      if (r.ok) this._t = await r.json();
+    } catch { /* keep existing */ }
+    this._lang = lang;
+    localStorage.setItem(LANG_KEY, lang);
+    document.documentElement.lang = lang;
+    document.documentElement.dir  = lang === "ar" ? "rtl" : "ltr";
+    document.documentElement.setAttribute("data-lang", lang);
+    // update toggle button label
+    const btn = document.getElementById("langToggle");
+    if (btn) btn.title = lang === "ar" ? "Switch to English" : "التبديل للعربية";
+    if (applyNow) this.apply();
+  },
+
+  t(key, fallback = "") {
+    return this._t[key] ?? fallback ?? key;
+  },
+
+  apply() {
+    // Text content
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      const val = this._t[key];
+      if (val !== undefined) el.textContent = val;
+    });
+    // Placeholder
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+      const val = this._t[el.getAttribute("data-i18n-placeholder")];
+      if (val !== undefined) el.placeholder = val;
+    });
+    // Title attribute
+    document.querySelectorAll("[data-i18n-title]").forEach(el => {
+      const val = this._t[el.getAttribute("data-i18n-title")];
+      if (val !== undefined) el.title = val;
+    });
+    // aria-label
+    document.querySelectorAll("[data-i18n-aria]").forEach(el => {
+      const val = this._t[el.getAttribute("data-i18n-aria")];
+      if (val !== undefined) el.setAttribute("aria-label", val);
+    });
+    // Page title
+    const titleEl = document.querySelector("title[data-i18n]");
+    if (titleEl) {
+      const val = this._t[titleEl.getAttribute("data-i18n")];
+      if (val !== undefined) document.title = val;
+    }
+  },
+
+  toggleLang() {
+    const next = this._lang === "ar" ? "en" : "ar";
+    this.setLang(next, true);
+  },
+};
 
 /* ── Toast notifications ─────────────────────────────────────────────────── */
 const TOAST_ICONS = { success: "✅", error: "❌", info: "💬" };
@@ -79,7 +226,7 @@ function toast(message, type = "info", duration = 3800) {
 
   const msgSpan = document.createElement("span");
   msgSpan.style.flex = "1";
-  msgSpan.textContent = message; // textContent prevents XSS from server-supplied strings
+  msgSpan.textContent = message;
 
   const closeBtn = document.createElement("button");
   closeBtn.className = "toast-close";
@@ -88,10 +235,9 @@ function toast(message, type = "info", duration = 3800) {
 
   el.append(iconSpan, msgSpan, closeBtn);
 
-  const isRTL = document.documentElement.dir === "rtl";
   const close = () => {
     el.style.opacity = "0";
-    el.style.transform = `translateX(${isRTL ? "-20px" : "20px"})`;
+    el.style.transform = `translateX(20px)`;
     el.style.transition = "opacity .3s, transform .3s";
     setTimeout(() => el.remove(), 320);
   };
@@ -101,18 +247,6 @@ function toast(message, type = "info", duration = 3800) {
   setTimeout(close, duration);
 }
 
-/* ── Token expiry check (client-side, no network needed) ─────────────────── */
-function isTokenFresh() {
-  const token = Auth.getToken();
-  if (!token) return false;
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return payload.exp > 0 && Date.now() / 1000 < payload.exp - 10;
-  } catch {
-    return false;
-  }
-}
-
 /* ── Button ripple effect ────────────────────────────────────────────────── */
 function addRipple(e) {
   const btn = e.currentTarget;
@@ -120,7 +254,6 @@ function addRipple(e) {
   const size = Math.max(rect.width, rect.height);
   const x = e.clientX - rect.left - size / 2;
   const y = e.clientY - rect.top  - size / 2;
-
   const ripple = document.createElement("span");
   ripple.className = "ripple";
   ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px`;
@@ -129,9 +262,7 @@ function addRipple(e) {
 }
 
 function initRipples() {
-  document.querySelectorAll(".btn-primary").forEach((btn) => {
-    btn.addEventListener("click", addRipple);
-  });
+  document.querySelectorAll(".btn-primary").forEach(btn => btn.addEventListener("click", addRipple));
 }
 
 /* ── Animated background orbs ────────────────────────────────────────────── */
@@ -158,29 +289,32 @@ function applyTheme(theme) {
 }
 
 function initTheme() {
-  const saved      = localStorage.getItem(THEME_KEY);
+  const saved       = localStorage.getItem(THEME_KEY);
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   applyTheme(saved || (prefersDark ? "dark" : "light"));
-
   const btn = document.getElementById("themeToggle");
   if (btn) {
     btn.addEventListener("click", () => {
-      const next =
-        document.documentElement.getAttribute("data-theme") === "dark"
-          ? "light"
-          : "dark";
-      applyTheme(next);
+      applyTheme(
+        document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"
+      );
     });
   }
 }
 
+function initLangToggle() {
+  const btn = document.getElementById("langToggle");
+  if (btn) btn.addEventListener("click", () => i18n.toggleLang());
+}
+
 /* ── Boot ────────────────────────────────────────────────────────────────── */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   injectBgOrbs();
   initTheme();
   initRipples();
+  await i18n.init();   // load translations and apply
+  initLangToggle();
 
-  // Register Service Worker — IDEA-21 (PWA)
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/static/sw.js").catch(() => {});
   }

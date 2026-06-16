@@ -19,18 +19,19 @@
       VoiceForge
     </a>
     <div class="topbar-right">
-      <a href="/" class="btn btn-ghost">🎙️ التحويل</a>
-      <a href="/profile" class="btn btn-ghost">👤 الملف</a>
+      <a href="/" class="btn btn-ghost" data-i18n="btn_convert">🎙️ التحويل</a>
+      <a href="/profile" class="btn btn-ghost" data-i18n="btn_profile">👤 الملف</a>
       <button class="btn btn-icon btn-ghost" id="themeToggle" type="button">🌙</button>
-      <button class="btn btn-ghost" id="logoutBtn" type="button">خروج</button>
+      <button class="btn btn-icon btn-ghost" id="langToggle" type="button" title="Switch language">🌐</button>
+      <button class="btn btn-ghost" id="logoutBtn" type="button" data-i18n="nav_logout">خروج</button>
     </div>
   </header>
 
   <main class="container page-wrap">
 
     <section class="hero" style="padding-block-end: 1rem">
-      <h1>📋 سجل <span class="grad">التحويلات</span></h1>
-      <p>جميع عمليات تحويل النص إلى صوت التي أجريتها.</p>
+      <h1>📋 <span data-i18n="history_title">سجل</span> <span class="grad" data-i18n="history_title_grad">التحويلات</span></h1>
+      <p data-i18n="history_sub">جميع عمليات تحويل النص إلى صوت التي أجريتها.</p>
     </section>
 
     <div class="card">
@@ -39,14 +40,14 @@
         <!-- Empty state -->
         <div id="emptyState" class="empty-state" style="display:none">
           <div class="empty-icon">🎙️</div>
-          <p>لا توجد تحويلات بعد.</p>
-          <a href="/" class="btn btn-primary">ابدأ أول تحويل</a>
+          <p data-i18n="history_empty_title">لا توجد تحويلات بعد.</p>
+          <a href="/" class="btn btn-primary" data-i18n="history_empty_btn">ابدأ أول تحويل</a>
         </div>
 
         <!-- Loading -->
         <div id="loadingState" class="empty-state">
           <span class="spinner"><span></span><span></span><span></span><span></span><span></span></span>
-          <p style="margin-top:1rem">جارٍ التحميل…</p>
+          <p style="margin-top:1rem" data-i18n="loading">جارٍ التحميل…</p>
         </div>
 
         <!-- Table -->
@@ -54,10 +55,10 @@
           <table class="history-table" aria-label="سجل التحويلات">
             <thead>
               <tr>
-                <th>النص</th>
-                <th>الصوت</th>
-                <th>الإعدادات</th>
-                <th>التاريخ</th>
+                <th data-i18n="history_col_text">النص</th>
+                <th data-i18n="history_col_voice">الصوت</th>
+                <th data-i18n="history_col_settings">الإعدادات</th>
+                <th data-i18n="history_col_date">التاريخ</th>
                 <th></th>
               </tr>
             </thead>
@@ -67,13 +68,11 @@
 
         <!-- Pagination -->
         <div id="pagination" class="pagination-row" style="display:none">
-          <button class="btn btn-ghost" id="prevBtn" onclick="changePage(-1)" disabled>
-            ← السابق
-          </button>
+          <button class="btn btn-ghost" id="prevBtn" onclick="changePage(-1)" disabled
+                  data-i18n="btn_prev">← السابق</button>
           <span id="pageInfo" class="page-info">الصفحة 1</span>
-          <button class="btn btn-ghost" id="nextBtn" onclick="changePage(1)">
-            التالي →
-          </button>
+          <button class="btn btn-ghost" id="nextBtn" onclick="changePage(1)"
+                  data-i18n="btn_next">التالي →</button>
         </div>
 
       </div>
@@ -127,8 +126,12 @@
 
         document.getElementById("prevBtn").disabled = currentPage === 1;
         document.getElementById("nextBtn").disabled = currentPage >= pages;
-        document.getElementById("pageInfo").textContent =
-          `الصفحة ${currentPage} من ${pages} (${total} تحويل)`;
+
+        const lang = localStorage.getItem("vf_lang") || "ar";
+        const locale = lang === "ar" ? "ar-SA" : "en-US";
+        document.getElementById("pageInfo").textContent = lang === "ar"
+          ? `الصفحة ${currentPage} من ${pages} (${total.toLocaleString(locale)} تحويل)`
+          : `Page ${currentPage} of ${pages} (${total.toLocaleString(locale)} items)`;
 
       } catch (err) {
         document.getElementById("loadingState").style.display = "none";
@@ -139,6 +142,8 @@
     function renderRows(rows) {
       const tbody = document.getElementById("historyBody");
       tbody.innerHTML = "";
+      const lang = localStorage.getItem("vf_lang") || "ar";
+      const locale = lang === "ar" ? "ar-SA" : "en-US";
 
       rows.forEach((r) => {
         const tr = document.createElement("tr");
@@ -147,7 +152,7 @@
           ? (r.text_preview.length > 60 ? r.text_preview.slice(0, 60) + "…" : r.text_preview)
           : "—";
 
-        const date = new Date(r.created_at).toLocaleString("ar-SA", {
+        const date = new Date(r.created_at).toLocaleString(locale, {
           year: "numeric", month: "short", day: "numeric",
           hour: "2-digit", minute: "2-digit",
         });

@@ -32,7 +32,7 @@ from app.config import settings
 from app.database import init_db
 from app.dependencies import get_db
 from app.limiter import limiter
-from app.routers import auth, history, tts
+from app.routers import auth, history, share, tts
 
 # ── Logging — IDEA-30 ─────────────────────────────────────────────────────────
 
@@ -140,6 +140,7 @@ async def _log_requests(request: Request, call_next):
 app.include_router(auth.router)
 app.include_router(tts.router)
 app.include_router(history.router)
+app.include_router(share.router)
 
 # Static assets
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -174,6 +175,11 @@ def history_page() -> FileResponse:
 @app.get("/profile", include_in_schema=False)
 def profile_page() -> FileResponse:
     return _page("profile.html")
+
+
+@app.get("/s/{uuid}", include_in_schema=False)
+def share_page(uuid: str) -> FileResponse:
+    return _page("share.html")
 
 
 # ── Health check — IDEA-31 ────────────────────────────────────────────────────

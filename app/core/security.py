@@ -1,7 +1,7 @@
-"""Password hashing and JWT helpers.
+"""Password hashing and JWT helpers — IDEA-14: refresh tokens added.
 
-Uses `bcrypt` directly for password hashing and `PyJWT` for tokens, both of
-which are well-supported on modern Python versions.
+Access tokens:  short-lived (15 min), sent in response body / Authorization header.
+Refresh tokens: long-lived (7 days),  stored in HttpOnly SameSite cookie.
 """
 
 from datetime import datetime, timedelta, timezone
@@ -21,24 +21,24 @@ class SecurityManager:
         secret_key: str = settings.secret_key,
         algorithm: str = settings.algorithm,
         expire_minutes: int = settings.access_token_expire_minutes,
+        refresh_days: int = settings.refresh_token_expire_days,
     ) -> None:
         self.secret_key = secret_key
         self.algorithm = algorithm
         self.expire_minutes = expire_minutes
+        self.refresh_days = refresh_days
 
-    # --- Password hashing -------------------------------------------------
+    # ── Password hashing ──────────────────────────────────────────────────────
+
     @staticmethod
     def _to_bytes(password: str) -> bytes:
-        """Encode and truncate to bcrypt's 72-byte limit."""
         return password.encode("utf-8")[:72]
 
     def hash_password(self, password: str) -> str:
-        """Return a bcrypt hash for the given plaintext password."""
         hashed = bcrypt.hashpw(self._to_bytes(password), bcrypt.gensalt())
         return hashed.decode("utf-8")
 
     def verify_password(self, password: str, hashed_password: str) -> bool:
-        """Check a plaintext password against a stored bcrypt hash."""
         try:
             return bcrypt.checkpw(
                 self._to_bytes(password), hashed_password.encode("utf-8")
@@ -46,23 +46,49 @@ class SecurityManager:
         except (ValueError, TypeError):
             return False
 
-    # --- JWT --------------------------------------------------------------
+    # ── JWT helpers ───────────────────────────────────────────────────────────
+
+    def _encode(self, payload: dict[str, Any]) -> str:
+        return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+
+    def _decode_raw(self, token: str) -> dict[str, Any]:
+        return jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+
+    # ── Access token ──────────────────────────────────────────────────────────
+
     def create_access_token(
         self, subject: str | int, expires_delta: Optional[timedelta] = None
     ) -> str:
-        """Create a signed JWT whose `sub` claim is the user id."""
+        """Create a signed access JWT.  type='access' guards against using a
+        refresh token in the Authorization header."""
         expire = datetime.now(timezone.utc) + (
             expires_delta or timedelta(minutes=self.expire_minutes)
         )
-        to_encode: dict[str, Any] = {"sub": str(subject), "exp": expire}
-        return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
+        return self._encode({"sub": str(subject), "exp": expire, "type": "access"})
 
     def decode_token(self, token: str) -> Optional[str]:
-        """Return the `sub` (user id) from a valid token, or None if invalid."""
+        """Return the user id (sub) from a valid *access* token, else None."""
         try:
-            payload = jwt.decode(
-                token, self.secret_key, algorithms=[self.algorithm]
-            )
+            payload = self._decode_raw(token)
+            if payload.get("type") != "access":
+                return None
+            return payload.get("sub")
+        except jwt.PyJWTError:
+            return None
+
+    # ── Refresh token — IDEA-14 ───────────────────────────────────────────────
+
+    def create_refresh_token(self, subject: str | int) -> str:
+        """Create a long-lived refresh JWT (7 days)."""
+        expire = datetime.now(timezone.utc) + timedelta(days=self.refresh_days)
+        return self._encode({"sub": str(subject), "exp": expire, "type": "refresh"})
+
+    def decode_refresh_token(self, token: str) -> Optional[str]:
+        """Return the user id from a valid refresh token, else None."""
+        try:
+            payload = self._decode_raw(token)
+            if payload.get("type") != "refresh":
+                return None
             return payload.get("sub")
         except jwt.PyJWTError:
             return None

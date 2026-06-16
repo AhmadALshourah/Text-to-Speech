@@ -446,6 +446,80 @@ function _animateProgress(bar, textLen) {
   step();
 }
 
+/* ── Share audio — IDEA-10 ───────────────────────────────────────────────── */
+async function shareAudio() {
+  const text    = document.getElementById("text")?.value.trim();
+  const voice   = document.getElementById("voice")?.value;
+  const rateRaw = document.getElementById("rate")?.value ?? "0";
+  const volRaw  = document.getElementById("volume")?.value ?? "0";
+  const ssml    = document.getElementById("text")?.dataset.ssml === "true";
+
+  if (!text) { toast(i18n.t("error_no_text", "الرجاء كتابة نص أولاً"), "error"); return; }
+
+  const rate   = `${Number(rateRaw) >= 0 ? "+" : ""}${rateRaw}%`;
+  const volume = `${Number(volRaw)  >= 0 ? "+" : ""}${volRaw}%`;
+
+  const btn   = document.getElementById("shareBtn");
+  const panel = document.getElementById("sharePanel");
+  const input = document.getElementById("shareUrlInput");
+  const expEl = document.getElementById("shareExpiryNote");
+
+  const origLabel = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"><span></span><span></span><span></span><span></span><span></span></span>`;
+
+  // Show panel immediately with loading text
+  panel.style.display = "block";
+  input.value = i18n.t("share_creating", "جارٍ إنشاء الرابط…");
+  if (expEl) expEl.textContent = "";
+
+  try {
+    const data = await apiRequest("/api/share", {
+      method: "POST",
+      auth: true,
+      body: { text, voice, rate, volume, ssml },
+    });
+
+    // Build full URL with metadata query params for the share page
+    const params = new URLSearchParams({
+      v:   voice,
+      t:   text.slice(0, 120),
+      exp: Math.floor(new Date(data.expires_at).getTime() / 1000),
+    });
+    const shareUrl = `${location.origin}/s/${data.uuid}?${params}`;
+    input.value = shareUrl;
+
+    if (expEl) {
+      const lang   = localStorage.getItem("vf_lang") || "ar";
+      const locale = lang === "ar" ? "ar-SA" : "en-US";
+      const d = new Date(data.expires_at).toLocaleString(locale);
+      expEl.textContent = lang === "ar"
+        ? `ينتهي الرابط في ${d}`
+        : `Expires ${d}`;
+    }
+
+    toast(i18n.t("share_copied", "تم إنشاء الرابط!"), "success", 2500);
+  } catch (err) {
+    panel.style.display = "none";
+    toast(err.message || "فشل إنشاء رابط المشاركة", "error");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origLabel;
+  }
+}
+
+function _copyShareUrl() {
+  const input = document.getElementById("shareUrlInput");
+  if (!input?.value) return;
+  navigator.clipboard.writeText(input.value).then(() => {
+    toast(i18n.t("share_copied", "تم نسخ الرابط!"), "success", 2000);
+  }).catch(() => {
+    input.select();
+    document.execCommand("copy");
+    toast(i18n.t("share_copied", "تم نسخ الرابط!"), "success", 2000);
+  });
+}
+
 /* ── Boot ────────────────────────────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", async () => {
   if (!Auth.isLoggedIn()) { location.href = "/login"; return; }
@@ -461,7 +535,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     location.href = "/login";
   });
 
-  // Verify JWT — skip round-trip if token is fresh — IDEA-08
+  // Verify JWT — skip round-trip if token is fresh
   if (!isTokenFresh()) {
     try {
       await apiRequest("/api/auth/me", { auth: true });
@@ -495,4 +569,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("shortcutsHint")?.addEventListener("click", () => {
     toast("⌨️  Ctrl+Enter = تحويل  ·  Space = تشغيل/إيقاف  ·  Ctrl+S = تحميل  ·  Esc = خروج التركيز", "info", 5000);
   });
+
+  // Share button — IDEA-10
+  document.getElementById("shareBtn")?.addEventListener("click", shareAudio);
+
+  // Copy share URL button
+  document.getElementById("shareCopyBtn")?.addEventListener("click", _copyShareUrl);
 });

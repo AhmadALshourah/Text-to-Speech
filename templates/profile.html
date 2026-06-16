@@ -19,17 +19,18 @@
       VoiceForge
     </a>
     <div class="topbar-right">
-      <a href="/" class="btn btn-ghost">🎙️ التحويل</a>
-      <a href="/history" class="btn btn-ghost">📋 السجل</a>
+      <a href="/" class="btn btn-ghost" data-i18n="btn_convert">🎙️ التحويل</a>
+      <a href="/history" class="btn btn-ghost" data-i18n="btn_history">📋 السجل</a>
       <button class="btn btn-icon btn-ghost" id="themeToggle" type="button">🌙</button>
-      <button class="btn btn-ghost" id="logoutBtn" type="button">خروج</button>
+      <button class="btn btn-icon btn-ghost" id="langToggle" type="button" title="Switch language">🌐</button>
+      <button class="btn btn-ghost" id="logoutBtn" type="button" data-i18n="nav_logout">خروج</button>
     </div>
   </header>
 
   <main class="container page-wrap">
 
     <section class="hero" style="padding-block-end:1rem">
-      <h1>👤 الملف <span class="grad">الشخصي</span></h1>
+      <h1>👤 <span data-i18n="profile_title">الملف</span> <span class="grad" data-i18n="profile_title_grad">الشخصي</span></h1>
     </section>
 
     <!-- Profile info card -->
@@ -50,24 +51,24 @@
           <div class="stat-item">
             <span>🔄</span>
             <span id="statTotal">0</span>
-            <small>تحويل</small>
+            <small id="statTotalLabel">تحويل</small>
           </div>
           <div class="stat-item">
             <span>📝</span>
             <span id="statChars">0</span>
-            <small>حرف هذا الشهر</small>
+            <small id="statCharsLabel">حرف هذا الشهر</small>
           </div>
           <div class="stat-item">
             <span>📊</span>
             <span id="statQuota">0%</span>
-            <small>من الحصة الشهرية</small>
+            <small id="statQuotaLabel">من الحصة الشهرية</small>
           </div>
         </div>
 
         <!-- Quota bar -->
         <div class="quota-wrap">
           <div class="quota-label">
-            <span>الحصة الشهرية</span>
+            <span id="quotaLabelText">الحصة الشهرية</span>
             <span id="quotaText">0 / 500,000 حرف</span>
           </div>
           <div class="quota-bar">
@@ -158,30 +159,32 @@
         .addEventListener("click", handleDeleteAccount);
     });
 
-    /* ── Load profile ────────────────────────────────────────────────────── */
     async function loadProfile() {
       try {
         const p = await apiRequest("/api/auth/profile", { auth: true });
+        const lang = localStorage.getItem("vf_lang") || "ar";
+        const locale = lang === "ar" ? "ar-SA" : "en-US";
 
         document.getElementById("avatarCircle").textContent =
           p.username.slice(0, 2).toUpperCase();
         document.getElementById("profileUsername").textContent = p.username;
         document.getElementById("profileEmail").textContent   = p.email;
 
-        const joined = new Date(p.created_at).toLocaleDateString("ar-SA", {
+        const joined = new Date(p.created_at).toLocaleDateString(locale, {
           year: "numeric", month: "long", day: "numeric",
         });
-        document.getElementById("profileJoined").textContent = `انضم في ${joined}`;
+        document.getElementById("profileJoined").textContent =
+          lang === "ar" ? `انضم في ${joined}` : `Joined ${joined}`;
 
         document.getElementById("statTotal").textContent =
-          p.total_conversions.toLocaleString("ar");
+          p.total_conversions.toLocaleString(locale);
         document.getElementById("statChars").textContent =
-          p.monthly_chars_used.toLocaleString("ar");
+          p.monthly_chars_used.toLocaleString(locale);
 
         const pct = Math.min(100, (p.monthly_chars_used / MONTHLY_LIMIT) * 100).toFixed(1);
         document.getElementById("statQuota").textContent  = pct + "%";
         document.getElementById("quotaText").textContent  =
-          `${p.monthly_chars_used.toLocaleString("ar")} / ${MONTHLY_LIMIT.toLocaleString("ar")} حرف`;
+          `${p.monthly_chars_used.toLocaleString(locale)} / ${MONTHLY_LIMIT.toLocaleString(locale)}`;
         document.getElementById("quotaFill").style.width  = pct + "%";
         document.getElementById("quotaFill").style.background =
           pct > 80 ? "var(--danger)" : pct > 60 ? "#f59e0b" : "var(--accent)";
@@ -192,7 +195,6 @@
       }
     }
 
-    /* ── Change password ─────────────────────────────────────────────────── */
     async function handlePasswordChange(e) {
       e.preventDefault();
       const btn     = document.getElementById("savePwdBtn");
@@ -219,7 +221,7 @@
           auth: true,
           body: { current_password: current, new_password: newPwd },
         });
-        toast("تم تحديث كلمة المرور بنجاح ✅", "success");
+        toast("تم تحديث كلمة المرور بنجاح", "success");
         e.target.reset();
       } catch (err) {
         toast(err.message || "فشل تحديث كلمة المرور", "error");
@@ -229,7 +231,6 @@
       }
     }
 
-    /* ── Delete account ──────────────────────────────────────────────────── */
     async function handleDeleteAccount() {
       const confirmed = window.confirm(
         "هل أنت متأكد تماماً؟\n\nسيتم حذف حسابك وجميع بياناتك بشكل نهائي ولا يمكن التراجع."
@@ -239,7 +240,7 @@
       try {
         await apiRequest("/api/auth/account", { method: "DELETE", auth: true });
         Auth.clear();
-        toast("تم حذف حسابك. وداعاً 👋", "info", 3000);
+        toast("تم حذف حسابك. وداعاً", "info", 3000);
         setTimeout(() => (location.href = "/register"), 2000);
       } catch (err) {
         toast(err.message || "فشل حذف الحساب", "error");

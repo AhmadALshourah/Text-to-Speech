@@ -21,7 +21,7 @@ Base = declarative_base()
 
 def init_db() -> None:
     """Create all tables and apply lightweight column migrations for SQLite."""
-    from app.models import conversion, user  # noqa: F401
+    from app.models import conversion, share, user  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
     _migrate()

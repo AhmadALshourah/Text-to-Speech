@@ -25,3 +25,6 @@ python-dotenv
 
 # Rate limiting (IDEA-13)
 slowapi
+
+# In-memory result cache (IDEA-02)
+cachetools

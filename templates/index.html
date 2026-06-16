@@ -21,17 +21,19 @@
     </a>
 
     <div class="topbar-right">
-      <a href="/history" class="btn btn-ghost" title="سجل التحويلات">📋</a>
-      <a href="/profile" class="btn btn-ghost" title="الملف الشخصي">👤</a>
+      <a href="/history" class="btn btn-ghost" data-i18n="nav_history" title="سجل التحويلات">📋</a>
+      <a href="/profile" class="btn btn-ghost" data-i18n="nav_profile" title="الملف الشخصي">👤</a>
       <div class="user-chip" id="userChip">
         <span>🎙️</span>
         <span id="userChipName">…</span>
       </div>
       <button class="btn btn-icon btn-ghost" id="focusModeBtn"
-              title="وضع التركيز (F)" type="button">🎯 تركيز</button>
+              title="وضع التركيز (F)" type="button" data-i18n="nav_focus">🎯 تركيز</button>
       <button class="btn btn-icon btn-ghost" id="themeToggle"
               title="تبديل المظهر" type="button">🌙</button>
-      <button class="btn btn-ghost" id="logoutBtn" type="button">خروج</button>
+      <button class="btn btn-icon btn-ghost" id="langToggle"
+              type="button" title="Switch language">🌐</button>
+      <button class="btn btn-ghost" id="logoutBtn" type="button" data-i18n="nav_logout">خروج</button>
     </div>
   </header>
 
@@ -42,18 +44,19 @@
     <section class="hero">
       <div class="hero-eyebrow">
         <span class="dot"></span>
-        مدعوم بـ edge-tts · مجاني ومفتوح المصدر
+        <span data-i18n="hero_badge">مدعوم بـ edge-tts · مجاني ومفتوح المصدر</span>
       </div>
       <h1>
-        حوّل <span class="grad">نصّك</span><br/>إلى كلام طبيعي
+        <span data-i18n="hero_h1_before">حوّل </span><span class="grad" data-i18n="hero_h1_grad">نصّك</span><br/>
+        <span data-i18n="hero_h1_after">إلى كلام طبيعي</span>
       </h1>
-      <p>اكتب أي نص، اختر الصوت واللغة، واستمع للنتيجة فوراً — بدون قيود.</p>
+      <p data-i18n="hero_sub">اكتب أي نص، اختر الصوت واللغة، واستمع للنتيجة فوراً — بدون قيود.</p>
 
       <div class="stats-strip">
-        <div class="stat-item"><span>🌍</span><span>6 لغات</span></div>
-        <div class="stat-item"><span>🎙️</span><span>12 صوتاً</span></div>
-        <div class="stat-item"><span>⚡</span><span>تحويل فوري</span></div>
-        <div class="stat-item"><span>🆓</span><span>مجاني تماماً</span></div>
+        <div class="stat-item"><span>🌍</span><span data-i18n="stat_langs">6 لغات</span></div>
+        <div class="stat-item"><span>🎙️</span><span data-i18n="stat_voices">12 صوتاً</span></div>
+        <div class="stat-item"><span>⚡</span><span data-i18n="stat_speed">تحويل فوري</span></div>
+        <div class="stat-item"><span>🆓</span><span data-i18n="stat_free">مجاني تماماً</span></div>
       </div>
     </section>
 
@@ -65,25 +68,25 @@
           <!-- Section: النص -->
           <div class="form-section">
             <div class="section-label-row">
-              <span class="section-label">النص المراد تحويله</span>
+              <span class="section-label" data-i18n="section_text">النص المراد تحويله</span>
               <div class="text-toolbar">
-                <!-- File upload — IDEA-08 -->
                 <label class="btn btn-ghost btn-sm" title="رفع ملف نصي (.txt)" style="cursor:pointer">
-                  📄 رفع ملف
+                  <span data-i18n="btn_upload">📄 رفع ملف</span>
                   <input type="file" id="fileUploadInput" accept=".txt,.md,text/*"
                          style="display:none" aria-label="رفع ملف نصي" />
                 </label>
-                <!-- SSML toggle — IDEA-25 -->
                 <button type="button" class="btn btn-ghost btn-sm" id="ssmlToggleBtn"
                         onclick="toggleSSML()" title="تفعيل وضع SSML">
-                  &lt;/&gt; SSML
+                  <span data-i18n="btn_ssml">&lt;/&gt; SSML</span>
                 </button>
-                <span id="ssmlBadge" class="badge badge-purple" style="display:none">SSML مفعّل</span>
+                <span id="ssmlBadge" class="badge badge-purple" style="display:none"
+                      data-i18n="ssml_badge">SSML مفعّل</span>
               </div>
             </div>
 
             <div class="field">
               <textarea class="input" id="text" maxlength="5000"
+                data-i18n-placeholder="textarea_placeholder"
                 placeholder="اكتب أو الصق نصّك هنا… يدعم العربية والإنجليزية والفرنسية والإسبانية والألمانية والمزيد.
 يمكنك سحب ملف .txt وإفلاته هنا مباشرةً."></textarea>
               <div class="char-count" id="charCount">0 حرف · 0 كلمة / 5000</div>
@@ -92,42 +95,41 @@
 
           <!-- Section: الصوت -->
           <div class="form-section">
-            <div class="section-label">الصوت واللغة</div>
+            <div class="section-label" data-i18n="section_voice">الصوت واللغة</div>
 
-            <!-- Language hint — IDEA-18 -->
             <div id="langHint" class="lang-hint" style="display:none" role="status" aria-live="polite"></div>
 
             <div class="field">
               <div class="voice-select-row">
                 <div class="input-wrap" style="flex:1">
-                  <select class="input" id="voice" aria-label="اختر الصوت">
-                    <option disabled selected>⏳ جارٍ تحميل الأصوات…</option>
+                  <select class="input" id="voice"
+                          data-i18n-aria="voice_select_label" aria-label="اختر الصوت">
+                    <option disabled selected data-i18n-option="voices_loading">⏳ جارٍ تحميل الأصوات…</option>
                   </select>
                   <span class="input-icon">🎤</span>
                 </div>
-                <!-- Voice preview — IDEA-07 -->
                 <button type="button" class="btn btn-ghost" id="previewBtn"
                         onclick="previewVoice()" title="معاينة سريعة للصوت المختار">
-                  🎧 معاينة
+                  <span data-i18n="btn_preview">🎧 معاينة</span>
                 </button>
               </div>
 
               <button type="button" class="btn btn-ghost" id="voiceRetryBtn"
                       style="display:none;margin-top:.5rem;width:100%"
                       onclick="loadVoices()">
-                🔄 إعادة المحاولة
+                <span data-i18n="btn_retry_voices">🔄 إعادة المحاولة</span>
               </button>
             </div>
           </div>
 
           <!-- Section: الضبط -->
           <div class="form-section">
-            <div class="section-label">ضبط الصوت</div>
+            <div class="section-label" data-i18n="section_controls">ضبط الصوت</div>
             <div class="controls-grid">
 
               <div class="field range-field">
                 <label for="rate">
-                  السرعة
+                  <span data-i18n="label_speed">السرعة</span>
                   <span class="range-val" id="rateVal">+0%</span>
                 </label>
                 <input type="range" id="rate" min="-50" max="50" step="5" value="0"
@@ -136,7 +138,7 @@
 
               <div class="field range-field">
                 <label for="volume">
-                  مستوى الصوت
+                  <span data-i18n="label_volume">مستوى الصوت</span>
                   <span class="range-val" id="volVal">+0%</span>
                 </label>
                 <input type="range" id="volume" min="-50" max="50" step="5" value="0"
@@ -145,13 +147,14 @@
 
             </div>
 
-            <!-- Save preferences — IDEA-11 -->
             <div class="prefs-row">
-              <button type="button" class="btn btn-ghost btn-sm" id="savePrefsBtn">
+              <button type="button" class="btn btn-ghost btn-sm" id="savePrefsBtn"
+                      data-i18n="btn_save_prefs">
                 💾 حفظ كإعداد افتراضي
               </button>
               <button type="button" class="btn btn-ghost btn-sm" id="shortcutsHint"
-                      title="اضغط لعرض اختصارات لوحة المفاتيح">
+                      title="اضغط لعرض اختصارات لوحة المفاتيح"
+                      data-i18n="btn_shortcuts">
                 ⌨️ اختصارات
               </button>
             </div>
@@ -159,21 +162,20 @@
 
           <!-- Action -->
           <div class="synth-row">
-            <!-- Progress indicator — IDEA-27 approximation -->
             <progress id="synthProgress" max="100" value="0"
                       style="display:none;width:100%;margin-bottom:.75rem"
                       aria-label="تقدم التحويل"></progress>
 
             <button type="submit" class="btn btn-primary btn-lg" id="synthBtn"
-                    aria-label="تحويل النص إلى صوت">
+                    aria-label="تحويل النص إلى صوت" data-i18n="btn_synthesize">
               🎙️ &nbsp;تحويل إلى صوت
             </button>
           </div>
 
-          <!-- Result — IDEA-24: aria-live region -->
+          <!-- Result -->
           <div class="result-section" id="result"
                role="region" aria-live="polite" aria-label="نتيجة التحويل">
-            <div class="result-label">الصوت جاهز</div>
+            <div class="result-label" data-i18n="result_label">الصوت جاهز</div>
 
             <div class="waveform" id="waveform" aria-hidden="true">
               <span class="bar"></span><span class="bar"></span>
@@ -205,6 +207,21 @@
 
               <a class="dl-btn" id="downloadBtn" download="voiceforge.mp3"
                  title="تحميل الملف (Ctrl+S)" aria-label="تحميل الملف الصوتي">⬇</a>
+
+              <!-- Share button — IDEA-10 -->
+              <button class="share-btn" id="shareBtn" type="button"
+                      data-i18n-title="btn_share" title="مشاركة">🔗</button>
+            </div>
+
+            <!-- Share panel — IDEA-10 -->
+            <div id="sharePanel" class="share-panel" style="display:none">
+              <div class="share-url-row">
+                <input class="input share-url-input" id="shareUrlInput" readonly
+                       type="text" aria-label="رابط المشاركة" />
+                <button class="btn btn-ghost btn-sm" id="shareCopyBtn" type="button"
+                        title="نسخ الرابط">📋</button>
+              </div>
+              <p class="share-expiry-note" id="shareExpiryNote"></p>
             </div>
 
             <audio id="audioEl" style="display:none" aria-hidden="true"></audio>
@@ -215,7 +232,8 @@
     </div>
 
     <p class="page-footer">
-      صُنع بـ ❤️ باستخدام <a href="https://github.com/rany2/edge-tts" target="_blank" rel="noopener">edge-tts</a>
+      <span data-i18n="footer_text">صُنع بـ ❤️ باستخدام</span>
+      <a href="https://github.com/rany2/edge-tts" target="_blank" rel="noopener">edge-tts</a>
       &amp; <a href="https://fastapi.tiangolo.com" target="_blank" rel="noopener">FastAPI</a>
     </p>
 

@@ -15,8 +15,9 @@ def _user_or_ip_key(request: Request) -> str:
         if token:
             try:
                 from app.core.security import security_manager
-                data = security_manager.decode_token(token)
-                return f"user:{data['sub']}"
+                uid = security_manager.decode_token(token)
+                if uid:
+                    return f"user:{uid}"
             except Exception:
                 pass
     host = getattr(request.client, "host", "unknown")

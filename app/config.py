@@ -12,7 +12,8 @@ class Settings(BaseSettings):
     # Security
     secret_key: str = "dev-only-insecure-secret-change-me"
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = 60
+    access_token_expire_minutes: int = 15   # short-lived; client refreshes via cookie
+    refresh_token_expire_days: int = 7
 
     # Database
     database_url: str = "sqlite:///./app.db"

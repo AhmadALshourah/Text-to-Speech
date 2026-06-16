@@ -35,6 +35,10 @@ class User(Base):
     conversions = relationship(
         "Conversion", back_populates="user", cascade="all, delete-orphan"
     )
+    shares = relationship(
+        "Share", back_populates="user", cascade="all, delete-orphan",
+        foreign_keys="Share.user_id",
+    )
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"<User id={self.id} username={self.username!r}>"

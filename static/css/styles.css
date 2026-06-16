@@ -891,6 +891,75 @@ input[type="range"]::-moz-range-track {
   transform: scale(1.08);
 }
 
+/* ── Share button (IDEA-10) ──────────────────────────────────────────────── */
+.share-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+  font-size: 1rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background var(--t), border-color var(--t), transform var(--t) var(--spring);
+}
+.share-btn:hover {
+  background: var(--glass-hov);
+  border-color: var(--border-hov);
+  transform: scale(1.08);
+}
+.share-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Share panel ─────────────────────────────────────────────────────────── */
+.share-panel {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  animation: bounce-in .3s var(--spring) both;
+}
+.share-url-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.share-url-input {
+  flex: 1;
+  font-size: 0.8rem !important;
+  padding: 0.5rem 0.75rem !important;
+  cursor: text;
+  direction: ltr;
+  text-align: left;
+  font-family: 'Inter', monospace;
+}
+.share-expiry-note {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* ── Auth pages: corner theme + lang buttons ─────────────────────────────── */
+.auth-corner-btns {
+  position: fixed;
+  top: 1rem;
+  inset-inline-end: 1rem;
+  z-index: 50;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ── LTR layout (IDEA-35 — English mode) ─────────────────────────────────── */
+html[dir="ltr"] {
+  --font: 'Inter', 'Cairo', system-ui, sans-serif;
+}
+html[dir="ltr"] .auth-visual { direction: ltr; }
+html[dir="ltr"] .auth-form-panel { direction: ltr; }
+
 /* ── Spinner (sound-wave style) ──────────────────────────────────────────── */
 .spinner {
   display: inline-flex;

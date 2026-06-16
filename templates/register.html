@@ -8,8 +8,12 @@
 </head>
 <body>
 
-  <button class="btn btn-icon btn-ghost auth-theme-btn" id="themeToggle"
-          type="button" title="تبديل المظهر">🌙</button>
+  <div class="auth-corner-btns">
+    <button class="btn btn-icon btn-ghost" id="themeToggle"
+            type="button" title="تبديل المظهر">🌙</button>
+    <button class="btn btn-icon btn-ghost" id="langToggle"
+            type="button" title="Switch language">🌐</button>
+  </div>
 
   <div class="auth-page">
 
@@ -24,11 +28,11 @@
         </div>
 
         <h2 class="auth-tagline">
-          ابدأ رحلتك مع<br/>
+          <span data-i18n="register_tagline_1">ابدأ رحلتك مع</span><br/>
           <span class="grad">VoiceForge</span>
         </h2>
 
-        <p class="auth-desc">
+        <p class="auth-desc" data-i18n="register_desc">
           انضم مجاناً واستمتع بتجربة تحويل
           النص إلى كلام طبيعي بأكثر من 12 صوتاً.
         </p>
@@ -36,15 +40,15 @@
         <ul class="auth-features">
           <li>
             <span class="feat-icon">🌍</span>
-            دعم العربية والإنجليزية وأكثر
+            <span data-i18n="feat_langs">دعم العربية والإنجليزية وأكثر</span>
           </li>
           <li>
             <span class="feat-icon">🎚️</span>
-            تحكم كامل بالسرعة ومستوى الصوت
+            <span data-i18n="feat_controls">تحكم كامل بالسرعة ومستوى الصوت</span>
           </li>
           <li>
             <span class="feat-icon">💾</span>
-            تحميل الملف الصوتي مباشرةً
+            <span data-i18n="feat_download">تحميل الملف الصوتي مباشرةً</span>
           </li>
         </ul>
 
@@ -62,14 +66,14 @@
       <div class="auth-form-inner">
 
         <div class="auth-head">
-          <h1>أنشئ حسابك ✨</h1>
-          <p>مجاني تماماً — لا بطاقة ائتمانية مطلوبة</p>
+          <h1 data-i18n="register_title">أنشئ حسابك ✨</h1>
+          <p data-i18n="register_sub">مجاني تماماً — لا بطاقة ائتمانية مطلوبة</p>
         </div>
 
         <form id="registerForm" novalidate>
 
           <div class="field">
-            <label for="username">اسم المستخدم</label>
+            <label for="username" data-i18n="label_username">اسم المستخدم</label>
             <div class="input-wrap">
               <input class="input" type="text" id="username"
                      placeholder="مثال: ahmad_dev"
@@ -80,7 +84,7 @@
           </div>
 
           <div class="field">
-            <label for="email">البريد الإلكتروني</label>
+            <label for="email" data-i18n="label_email">البريد الإلكتروني</label>
             <div class="input-wrap">
               <input class="input" type="email" id="email"
                      placeholder="you@example.com"
@@ -91,7 +95,7 @@
 
           <div class="field-row">
             <div class="field">
-              <label for="password">كلمة المرور</label>
+              <label for="password" data-i18n="label_password">كلمة المرور</label>
               <div class="input-wrap">
                 <input class="input" type="password" id="password"
                        placeholder="6 أحرف على الأقل"
@@ -101,7 +105,7 @@
               </div>
             </div>
             <div class="field">
-              <label for="confirm">تأكيد كلمة المرور</label>
+              <label for="confirm" data-i18n="label_confirm">تأكيد كلمة المرور</label>
               <div class="input-wrap">
                 <input class="input" type="password" id="confirm"
                        placeholder="أعد الكتابة"
@@ -113,15 +117,15 @@
           </div>
 
           <button type="submit" class="btn btn-primary btn-block btn-lg" id="submitBtn"
-                  style="margin-top:.5rem">
+                  style="margin-top:.5rem" data-i18n="btn_register">
             إنشاء الحساب
           </button>
 
         </form>
 
         <p class="foot-link">
-          لديك حساب بالفعل؟
-          <a href="/login">سجّل الدخول</a>
+          <span data-i18n="link_have_account">لديك حساب بالفعل؟</span>
+          <a href="/login" data-i18n="link_login">سجّل الدخول</a>
         </p>
 
       </div>

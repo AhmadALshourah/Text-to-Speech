@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n-title="share_page_title">مشاركة صوتية — VoiceForge</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <link rel="manifest" href="/static/manifest.json" />
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="brand" href="/">
+      <span class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9A9 9 0 0 1 3 12a9 9 0 0 1 9-9zm0 2a7 7 0 1 0 0 14A7 7 0 0 0 12 5zm-1 3h2v8h-2zm-4 2h2v4H7zm8 0h2v4h-2z"/>
+        </svg>
+      </span>
+      VoiceForge
+    </a>
+    <div class="topbar-right">
+      <button class="btn btn-icon btn-ghost" id="themeToggle" type="button">🌙</button>
+      <button class="btn btn-icon btn-ghost" id="langToggle" type="button" title="Switch language">🌐</button>
+    </div>
+  </header>
+
+  <main class="container page-wrap" style="max-width:600px">
+
+    <!-- Loading -->
+    <div id="loadingState" class="empty-state">
+      <span class="spinner"><span></span><span></span><span></span><span></span><span></span></span>
+      <p style="margin-top:1rem" data-i18n="loading">جارٍ التحميل…</p>
+    </div>
+
+    <!-- Expired -->
+    <div id="expiredState" class="empty-state" style="display:none">
+      <div style="font-size:3rem">⏰</div>
+      <h2 data-i18n="share_expired_title">انتهت صلاحية هذا الرابط</h2>
+      <p data-i18n="share_expired_desc">تنتهي روابط المشاركة بعد 24 ساعة من إنشائها.</p>
+      <a href="/" class="btn btn-primary" data-i18n="share_create_own">أنشئ تحويلك الخاص</a>
+    </div>
+
+    <!-- Not found -->
+    <div id="notFoundState" class="empty-state" style="display:none">
+      <div style="font-size:3rem">🔍</div>
+      <h2 data-i18n="share_notfound_title">الرابط غير موجود</h2>
+      <p data-i18n="share_notfound_desc">هذا الرابط غير صالح أو تم حذفه.</p>
+      <a href="/" class="btn btn-primary" data-i18n="share_create_own">أنشئ تحويلك الخاص</a>
+    </div>
+
+    <!-- Player -->
+    <div id="playerState" style="display:none">
+      <section class="hero" style="padding-block-end:1rem;text-align:center">
+        <h1>🎙️ <span class="grad" data-i18n="share_title">مشاركة صوتية</span></h1>
+        <p id="shareVoiceLabel" style="opacity:.7;margin-top:.5rem"></p>
+      </section>
+
+      <div class="card" style="margin-bottom:1.5rem">
+        <div class="card-body">
+          <div id="shareTextPreview" class="hist-text"
+               style="font-size:1rem;line-height:1.7;margin-bottom:1.25rem;
+                      background:var(--surface-2);border-radius:.75rem;padding:1rem"></div>
+
+          <!-- Player -->
+          <div class="result-section" id="result" style="display:block;padding:0;border:none;background:transparent">
+            <div class="waveform" id="waveform" aria-hidden="true">
+              <span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span>
+            </div>
+            <div class="player-controls">
+              <button class="play-btn" id="playBtn" type="button" aria-label="تشغيل">▶</button>
+              <div class="progress-area">
+                <div class="progress-track" id="progressTrack" dir="ltr"
+                     role="slider" aria-label="موضع التشغيل">
+                  <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="time-row">
+                  <span id="currentTime">0:00</span>
+                  <span id="duration">0:00</span>
+                </div>
+              </div>
+              <a class="dl-btn" id="downloadBtn" download="voiceforge-share.mp3"
+                 aria-label="تحميل">⬇</a>
+            </div>
+            <audio id="audioEl" style="display:none" aria-hidden="true"></audio>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expiry notice -->
+      <p id="expiryNote" style="text-align:center;opacity:.55;font-size:.85rem"></p>
+
+      <!-- CTA -->
+      <div style="text-align:center;margin-top:2rem">
+        <p style="opacity:.6;margin-bottom:.75rem" data-i18n="share_cta_text">
+          أعجبك ما سمعت؟ جرّب VoiceForge مجاناً
+        </p>
+        <a href="/" class="btn btn-primary" data-i18n="share_cta_btn">ابدأ مجاناً</a>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/static/js/api.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const uuid = location.pathname.split("/s/")[1];
+      const audioUrl = `/api/share/${uuid}/audio`;
+
+      // Probe the audio endpoint to know if the share is valid/expired
+      try {
+        const probe = await fetch(audioUrl, { method: "HEAD" });
+        if (probe.status === 404) { show("notFoundState"); return; }
+        if (probe.status === 410) { show("expiredState");  return; }
+        if (!probe.ok)            { show("notFoundState"); return; }
+      } catch {
+        show("notFoundState");
+        return;
+      }
+
+      // Fetch metadata via a separate API call
+      // (We piggyback on the audio response headers for simplicity)
+      // Just show the player and load audio
+      show("playerState");
+
+      const audio = document.getElementById("audioEl");
+      audio.src = audioUrl;
+
+      // Fill voice label
+      const voiceParam = new URLSearchParams(location.search).get("v") || "";
+      if (voiceParam) {
+        document.getElementById("shareVoiceLabel").textContent = `🎤 ${voiceParam}`;
+      }
+
+      // Hide text preview if empty
+      const previewEl = document.getElementById("shareTextPreview");
+      const textParam = new URLSearchParams(location.search).get("t") || "";
+      if (textParam) {
+        previewEl.textContent = decodeURIComponent(textParam);
+      } else {
+        previewEl.style.display = "none";
+      }
+
+      // Expiry note
+      const expParam = new URLSearchParams(location.search).get("exp") || "";
+      if (expParam) {
+        const d = new Date(parseInt(expParam) * 1000);
+        const expiryEl = document.getElementById("expiryNote");
+        const lang = localStorage.getItem("vf_lang") || "ar";
+        expiryEl.textContent = lang === "ar"
+          ? `ينتهي هذا الرابط في ${d.toLocaleString("ar-SA")}`
+          : `This link expires on ${d.toLocaleString("en-US")}`;
+      }
+
+      // Download link
+      document.getElementById("downloadBtn").href = audioUrl;
+
+      // Mini player
+      initSharePlayer();
+    });
+
+    function show(id) {
+      document.getElementById("loadingState").style.display = "none";
+      document.getElementById(id).style.display = "flex";
+    }
+
+    function initSharePlayer() {
+      const audio        = document.getElementById("audioEl");
+      const playBtn      = document.getElementById("playBtn");
+      const fill         = document.getElementById("progressFill");
+      const track        = document.getElementById("progressTrack");
+      const currentEl    = document.getElementById("currentTime");
+      const durationEl   = document.getElementById("duration");
+      const waveform     = document.getElementById("waveform");
+
+      const fmt = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
+
+      playBtn.addEventListener("click", () => {
+        if (audio.paused) {
+          audio.play().then(() => {
+            playBtn.textContent = "⏸";
+            waveform.classList.add("playing");
+          }).catch(() => {});
+        } else {
+          audio.pause();
+          playBtn.textContent = "▶";
+          waveform.classList.remove("playing");
+        }
+      });
+
+      audio.addEventListener("timeupdate", () => {
+        if (!audio.duration) return;
+        const pct = (audio.currentTime / audio.duration) * 100;
+        fill.style.width = pct + "%";
+        currentEl.textContent = fmt(audio.currentTime);
+      });
+
+      audio.addEventListener("loadedmetadata", () => {
+        durationEl.textContent = fmt(audio.duration);
+      });
+
+      audio.addEventListener("ended", () => {
+        playBtn.textContent = "▶";
+        waveform.classList.remove("playing");
+        fill.style.width = "0%";
+      });
+
+      track.addEventListener("click", (e) => {
+        const rect = track.getBoundingClientRect();
+        audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+      });
+    }
+  </script>
+</body>
+</html>

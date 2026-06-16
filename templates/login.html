@@ -8,12 +8,16 @@
 </head>
 <body>
 
-  <button class="btn btn-icon btn-ghost auth-theme-btn" id="themeToggle"
-          type="button" title="تبديل المظهر">🌙</button>
+  <div class="auth-corner-btns">
+    <button class="btn btn-icon btn-ghost" id="themeToggle"
+            type="button" title="تبديل المظهر">🌙</button>
+    <button class="btn btn-icon btn-ghost" id="langToggle"
+            type="button" title="Switch language">🌐</button>
+  </div>
 
   <div class="auth-page">
 
-    <!-- ── Visual Panel (left) ── -->
+    <!-- ── Visual Panel ── -->
     <div class="auth-visual" dir="rtl">
       <div class="auth-visual-content">
 
@@ -24,11 +28,11 @@
         </div>
 
         <h2 class="auth-tagline">
-          حوّل كلماتك إلى<br/>
-          <span class="grad">صوت حقيقي</span>
+          <span data-i18n="visual_tagline_1">حوّل كلماتك إلى</span><br/>
+          <span class="grad" data-i18n="visual_tagline_2">صوت حقيقي</span>
         </h2>
 
-        <p class="auth-desc">
+        <p class="auth-desc" data-i18n="visual_desc">
           تقنية تحويل النص إلى كلام بجودة عالية،
           تدعم العربية والإنجليزية وأكثر من 6 لغات.
         </p>
@@ -36,15 +40,15 @@
         <ul class="auth-features">
           <li>
             <span class="feat-icon">🎙️</span>
-            12 صوتاً طبيعياً بلغات متعددة
+            <span data-i18n="feat_voices">12 صوتاً طبيعياً بلغات متعددة</span>
           </li>
           <li>
             <span class="feat-icon">⚡</span>
-            تحويل فوري بدون انتظار
+            <span data-i18n="feat_speed">تحويل فوري بدون انتظار</span>
           </li>
           <li>
             <span class="feat-icon">🆓</span>
-            مجاني تماماً — لا بطاقة ائتمانية
+            <span data-i18n="feat_free">مجاني تماماً — لا بطاقة ائتمانية</span>
           </li>
         </ul>
 
@@ -57,19 +61,19 @@
       </div>
     </div>
 
-    <!-- ── Form Panel (right in RTL) ── -->
+    <!-- ── Form Panel ── -->
     <div class="auth-form-panel" dir="rtl">
       <div class="auth-form-inner">
 
         <div class="auth-head">
-          <h1>مرحباً بعودتك 👋</h1>
-          <p>أدخل بياناتك للمتابعة إلى حسابك</p>
+          <h1 data-i18n="login_title">مرحباً بعودتك 👋</h1>
+          <p data-i18n="login_sub">أدخل بياناتك للمتابعة إلى حسابك</p>
         </div>
 
         <form id="loginForm" novalidate>
 
           <div class="field">
-            <label for="email">البريد الإلكتروني</label>
+            <label for="email" data-i18n="label_email">البريد الإلكتروني</label>
             <div class="input-wrap">
               <input class="input" type="email" id="email"
                      placeholder="you@example.com"
@@ -79,7 +83,7 @@
           </div>
 
           <div class="field">
-            <label for="password">كلمة المرور</label>
+            <label for="password" data-i18n="label_password">كلمة المرور</label>
             <div class="input-wrap">
               <input class="input" type="password" id="password"
                      placeholder="••••••••"
@@ -89,15 +93,15 @@
           </div>
 
           <button type="submit" class="btn btn-primary btn-block btn-lg" id="submitBtn"
-                  style="margin-top:.5rem">
+                  style="margin-top:.5rem" data-i18n="btn_login">
             تسجيل الدخول
           </button>
 
         </form>
 
         <p class="foot-link">
-          ليس لديك حساب؟
-          <a href="/register">أنشئ حساباً الآن</a>
+          <span data-i18n="link_no_account">ليس لديك حساب؟</span>
+          <a href="/register" data-i18n="link_register">أنشئ حساباً الآن</a>
         </p>
 
       </div>
