@@ -108,9 +108,7 @@ function initRanges() {
       const min = Number(input.min);
       const max = Number(input.max);
       const pct = ((v - min) / (max - min)) * 100;
-      input.style.background = `linear-gradient(to right,
-        #7C3AED ${pct}%,
-        rgba(139,92,246,.18) ${pct}%)`;
+      input.style.background = `linear-gradient(to right, var(--violet) ${pct}%, rgba(255,255,255,.1) ${pct}%)`;
     };
 
     input.addEventListener("input", update);
@@ -227,17 +225,31 @@ async function previewVoice() {
   const text  = document.getElementById("text")?.value || "";
   if (!voice) { toast("اختر صوتاً أولاً", "error"); return; }
 
-  const btn = document.getElementById("previewBtn");
-  if (btn) { btn.disabled = true; btn.textContent = "⏳"; }
+  const btn      = document.getElementById("previewBtn");
+  const origHtml = btn ? btn.innerHTML : "";
+  if (btn) { btn.disabled = true; btn.innerHTML = "⏳"; }
 
   try {
+    // Refresh the access token if it's about to expire (raw fetch bypasses apiRequest)
+    if (!isTokenFresh(60)) {
+      const ok = await refreshAccessToken();
+      if (!ok) { location.href = "/login"; return; }
+    }
+
     const res = await fetch("/api/tts/preview", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${Auth.getToken()}` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Auth.getToken()}`,
+      },
       body: JSON.stringify({ voice, text: text.slice(0, 200) }),
     });
 
-    if (!res.ok) throw new Error("فشل جلب المعاينة");
+    if (!res.ok) {
+      let msg = `فشل جلب المعاينة (${res.status})`;
+      try { const d = await res.json(); if (d.detail) msg = d.detail; } catch {}
+      throw new Error(msg);
+    }
 
     const blob = await res.blob();
     const url  = URL.createObjectURL(blob);
@@ -249,7 +261,7 @@ async function previewVoice() {
   } catch (err) {
     toast(err.message || "فشلت المعاينة", "error");
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = "🎧 معاينة"; }
+    if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
   }
 }
 
@@ -561,6 +573,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   player = new AudioPlayer();
 
   document.getElementById("ttsForm").addEventListener("submit", handleSynthesize);
+
+  // Buttons previously using inline onclick attributes
+  document.getElementById("previewBtn")?.addEventListener("click", previewVoice);
+  document.getElementById("ssmlToggleBtn")?.addEventListener("click", toggleSSML);
 
   // Save-prefs button
   document.getElementById("savePrefsBtn")?.addEventListener("click", savePreferences);

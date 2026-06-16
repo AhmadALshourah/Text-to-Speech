@@ -4,10 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VoiceForge — تحويل النص إلى كلام</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="/static/css/styles.css" />
   <link rel="manifest" href="/static/manifest.json" />
 </head>
 <body>
+
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
 
   <!-- ── Topbar ── -->
   <header class="topbar">
@@ -27,8 +35,6 @@
         <span>🎙️</span>
         <span id="userChipName">…</span>
       </div>
-      <button class="btn btn-icon btn-ghost" id="focusModeBtn"
-              title="وضع التركيز (F)" type="button" data-i18n="nav_focus">🎯 تركيز</button>
       <button class="btn btn-icon btn-ghost" id="themeToggle"
               title="تبديل المظهر" type="button">🌙</button>
       <button class="btn btn-icon btn-ghost" id="langToggle"
@@ -76,7 +82,7 @@
                          style="display:none" aria-label="رفع ملف نصي" />
                 </label>
                 <button type="button" class="btn btn-ghost btn-sm" id="ssmlToggleBtn"
-                        onclick="toggleSSML()" title="تفعيل وضع SSML">
+                        title="تفعيل وضع SSML">
                   <span data-i18n="btn_ssml">&lt;/&gt; SSML</span>
                 </button>
                 <span id="ssmlBadge" class="badge badge-purple" style="display:none"
@@ -109,7 +115,7 @@
                   <span class="input-icon">🎤</span>
                 </div>
                 <button type="button" class="btn btn-ghost" id="previewBtn"
-                        onclick="previewVoice()" title="معاينة سريعة للصوت المختار">
+                        title="معاينة سريعة للصوت المختار">
                   <span data-i18n="btn_preview">🎧 معاينة</span>
                 </button>
               </div>
@@ -241,5 +247,6 @@
 
   <script src="/static/js/api.js"></script>
   <script src="/static/js/app.js"></script>
+  <script src="/static/js/animations.js"></script>
 </body>
 </html>

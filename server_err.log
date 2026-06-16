@@ -1,0 +1,23 @@
+INFO:     Started server process [9664]
+INFO:     Waiting for application startup.
+2026-06-13 07:11:37 | WARNING  | main | \u26a0\ufe0f  SECRET_KEY is the insecure default — set a strong random value in .env before deploying.
+2026-06-13 07:11:37 | INFO     | main | VoiceForge started.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
+2026-06-13 07:11:39 | INFO     | main | GET /health \u2192 200  (3ms)
+2026-06-13 07:11:40 | INFO     | main | POST /api/auth/register \u2192 201  (765ms)
+2026-06-13 07:11:40 | INFO     | main | POST /api/auth/register \u2192 409  (6ms)
+2026-06-13 07:11:40 | INFO     | main | POST /api/auth/login \u2192 200  (315ms)
+2026-06-13 07:11:41 | INFO     | main | POST /api/auth/login \u2192 401  (402ms)
+2026-06-13 07:11:41 | INFO     | main | GET /api/auth/me \u2192 200  (11ms)
+2026-06-13 07:11:41 | INFO     | main | GET /api/tts/voices \u2192 200  (7ms)
+2026-06-13 07:11:42 | INFO     | main | POST /api/tts/preview \u2192 200  (980ms)
+2026-06-13 07:11:44 | INFO     | main | POST /api/tts/synthesize \u2192 200  (1801ms)
+2026-06-13 07:11:44 | INFO     | main | GET /api/history \u2192 200  (24ms)
+2026-06-13 07:11:44 | INFO     | main | GET /api/auth/profile \u2192 200  (7ms)
+2026-06-13 07:11:44 | INFO     | main | PATCH /api/auth/password \u2192 204  (691ms)
+2026-06-13 07:11:45 | INFO     | main | POST /api/auth/login \u2192 200  (436ms)
+2026-06-13 07:11:45 | INFO     | main | GET /api/history \u2192 200  (11ms)
+2026-06-13 07:11:45 | INFO     | main | DELETE /api/history/2 \u2192 204  (120ms)
+2026-06-13 07:11:45 | INFO     | main | DELETE /api/auth/account \u2192 204  (145ms)
+2026-06-13 07:11:45 | INFO     | main | POST /api/auth/login \u2192 401  (9ms)

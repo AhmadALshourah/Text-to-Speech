@@ -5,7 +5,8 @@
       "name": "VoiceForge",
       "runtimeExecutable": ".venv\\Scripts\\python.exe",
       "runtimeArgs": ["-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000", "--reload"],
-      "port": 8000
+      "port": 8000,
+      "autoPort": false
     }
   ]
 }

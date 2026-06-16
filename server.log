@@ -1,0 +1,17 @@
+INFO:     127.0.0.1:60506 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60506 - "POST /api/auth/register HTTP/1.1" 201 Created
+INFO:     127.0.0.1:60506 - "POST /api/auth/register HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:60506 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60506 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:60506 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60506 - "GET /api/tts/voices HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60506 - "POST /api/tts/preview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60506 - "POST /api/tts/synthesize HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60506 - "GET /api/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60506 - "GET /api/auth/profile HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60506 - "PATCH /api/auth/password HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:60506 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60506 - "GET /api/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60506 - "DELETE /api/history/2 HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:60506 - "DELETE /api/auth/account HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:60506 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
