@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceForge — حوّل نصّك إلى صوت طبيعي</title>
+  <meta name="description" content="تحويل النص إلى كلام بأصوات طبيعية، يدعم العربية والإنجليزية وأكثر من 6 لغات. مجاني تماماً." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <link rel="stylesheet" href="/static/css/promo.css" />
+  <link rel="manifest" href="/static/manifest.json" />
+</head>
+<body class="promo-page">
+
+  <!-- Background orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════════════════════════════════════════ -->
+  <header class="promo-nav" id="promoNav" role="banner">
+    <a class="brand" href="/" aria-label="VoiceForge — الصفحة الرئيسية">
+      <span class="brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9A9 9 0 0 1 3 12a9 9 0 0 1 9-9zm0 2a7 7 0 1 0 0 14A7 7 0 0 0 12 5zm-1 3h2v8h-2zm-4 2h2v4H7zm8 0h2v4h-2z"/>
+        </svg>
+      </span>
+      VoiceForge
+    </a>
+
+    <nav class="promo-nav-links" aria-label="تنقل الصفحة">
+      <a href="#features" data-i18n="promo_nav_features">المميزات</a>
+      <a href="#how"      data-i18n="promo_nav_how">كيف يعمل؟</a>
+      <a href="#voices"   data-i18n="promo_nav_voices">الأصوات</a>
+    </nav>
+
+    <div class="promo-nav-ctas">
+      <button class="btn btn-icon btn-ghost" id="themeToggle" type="button" title="تبديل المظهر" aria-label="تبديل المظهر">🌙</button>
+      <button class="btn btn-icon btn-ghost" id="langToggle"  type="button" title="Switch language" aria-label="تغيير اللغة">🌐</button>
+      <a href="/login"    class="btn btn-ghost"   data-i18n="promo_nav_login">تسجيل الدخول</a>
+      <a href="/register" class="btn btn-primary" data-i18n="promo_nav_signup">ابدأ مجاناً</a>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="promo-hero" aria-labelledby="hero-heading">
+
+    <div class="hero-badge" role="note">
+      <span class="hero-badge-dot" aria-hidden="true"></span>
+      <span data-i18n="promo_hero_badge">مجاني · مفتوح المصدر · مدعوم بـ Microsoft Neural TTS</span>
+    </div>
+
+    <h1 class="hero-title" id="hero-heading">
+      <span class="hero-title-line" data-i18n="promo_hero_h1">حوّل كلماتك إلى</span>
+      <span class="hero-title-line" data-i18n="promo_hero_h1_grad">صوت حقيقي</span>
+    </h1>
+
+    <p class="hero-sub" data-i18n="promo_hero_sub">
+      اكتب أي نص — عربي أو إنجليزي أو أكثر من 6 لغات — واحصل على صوت طبيعي
+      خلال ثوانٍ. مجاناً تماماً.
+    </p>
+
+    <div class="hero-actions">
+      <a href="/register" class="btn btn-primary btn-lg" data-i18n="promo_hero_cta">
+        ابدأ مجاناً — لا بطاقة ائتمانية
+      </a>
+      <a href="/login" class="btn btn-ghost btn-lg" data-i18n="promo_nav_login">
+        تسجيل الدخول
+      </a>
+    </div>
+
+    <!-- Animated equalizer mockup -->
+    <div class="hero-eq-wrap" aria-hidden="true">
+      <div class="hero-eq-label">
+        <span class="eq-pulse"></span>
+        <span data-i18n="promo_eq_label">جارٍ تحويل النص إلى كلام…</span>
+      </div>
+      <div class="hero-equalizer" id="heroEqualizer"></div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STATS
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="promo-stats-wrap">
+    <div class="promo-stats" role="list" aria-label="إحصائيات">
+
+      <div class="promo-stat-card" role="listitem" data-animate data-hidden>
+        <div class="promo-stat-num" data-counter="12">0</div>
+        <div class="promo-stat-lbl" data-i18n="promo_stat_voices_lbl">صوت طبيعي</div>
+      </div>
+
+      <div class="promo-stat-card" role="listitem" data-animate data-hidden data-stagger=".12s">
+        <div class="promo-stat-num" data-counter="6">0</div>
+        <div class="promo-stat-lbl" data-i18n="promo_stat_langs_lbl">لغة مدعومة</div>
+      </div>
+
+      <div class="promo-stat-card" role="listitem" data-animate data-hidden data-stagger=".24s">
+        <div class="promo-stat-num" data-i18n="promo_stat_free_num">100%</div>
+        <div class="promo-stat-lbl" data-i18n="promo_stat_free_lbl">مجاني دائماً</div>
+      </div>
+
+      <div class="promo-stat-card" role="listitem" data-animate data-hidden data-stagger=".36s">
+        <div class="promo-stat-num" data-i18n="promo_stat_speed_num">&lt; 2s</div>
+        <div class="promo-stat-lbl" data-i18n="promo_stat_speed_lbl">وقت التحويل</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="promo-divider" aria-hidden="true"></div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       FEATURES
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="promo-section" id="features" aria-labelledby="feat-heading">
+
+    <div class="promo-section-head" data-animate data-hidden>
+      <span class="section-eyebrow" data-i18n="promo_feat_eyebrow">المميزات</span>
+      <h2 class="promo-section-title" id="feat-heading">
+        <span data-i18n="promo_feat_title">لماذا تختار </span><span class="grad">VoiceForge</span><span data-i18n="promo_feat_title_after">؟</span>
+      </h2>
+      <p class="promo-section-sub" data-i18n="promo_feat_sub">
+        كل ما تحتاجه لتحويل نصّك إلى صوت احترافي في مكان واحد
+      </p>
+    </div>
+
+    <div class="features-grid">
+
+      <article class="feature-card" data-animate data-hidden data-stagger=".05s">
+        <div class="feature-icon-wrap fi-indigo" aria-hidden="true">🎙️</div>
+        <h3 class="feature-title" data-i18n="promo_f1_title">أصوات طبيعية</h3>
+        <p class="feature-desc" data-i18n="promo_f1_desc">
+          12 صوتاً من Microsoft Neural TTS — تبدو كبشر حقيقيين، بجودة استوديو احترافية
+        </p>
+      </article>
+
+      <article class="feature-card" data-animate data-hidden data-stagger=".10s">
+        <div class="feature-icon-wrap fi-violet" aria-hidden="true">🌍</div>
+        <h3 class="feature-title" data-i18n="promo_f2_title">دعم عربي كامل</h3>
+        <p class="feature-desc" data-i18n="promo_f2_desc">
+          أصوات عربية باللهجتين السعودية والمصرية، إضافةً إلى الإنجليزية والفرنسية والإسبانية والألمانية
+        </p>
+      </article>
+
+      <article class="feature-card" data-animate data-hidden data-stagger=".15s">
+        <div class="feature-icon-wrap fi-cyan" aria-hidden="true">🎚️</div>
+        <h3 class="feature-title" data-i18n="promo_f3_title">تحكم كامل</h3>
+        <p class="feature-desc" data-i18n="promo_f3_desc">
+          اضبط سرعة الكلام ومستوى الصوت بدقة — من البطيء جداً إلى السريع جداً
+        </p>
+      </article>
+
+      <article class="feature-card" data-animate data-hidden data-stagger=".05s">
+        <div class="feature-icon-wrap fi-pink" aria-hidden="true">⬇️</div>
+        <h3 class="feature-title" data-i18n="promo_f4_title">تحميل MP3 فوري</h3>
+        <p class="feature-desc" data-i18n="promo_f4_desc">
+          احفظ ملف الصوت مباشرة على جهازك بضغطة واحدة — بدون انتظار
+        </p>
+      </article>
+
+      <article class="feature-card" data-animate data-hidden data-stagger=".10s">
+        <div class="feature-icon-wrap fi-green" aria-hidden="true">🆓</div>
+        <h3 class="feature-title" data-i18n="promo_f5_title">مجاني 100%</h3>
+        <p class="feature-desc" data-i18n="promo_f5_desc">
+          لا بطاقة ائتمانية، لا اشتراك شهري، لا قيود مخفية — مجاني حقيقي وللأبد
+        </p>
+      </article>
+
+      <article class="feature-card" data-animate data-hidden data-stagger=".15s">
+        <div class="feature-icon-wrap fi-amber" aria-hidden="true">🔗</div>
+        <h3 class="feature-title" data-i18n="promo_f6_title">مشاركة سهلة</h3>
+        <p class="feature-desc" data-i18n="promo_f6_desc">
+          شارك تحويلاتك برابط واحد — يُشغَّل فوراً ويصلح لمدة 24 ساعة
+        </p>
+      </article>
+
+    </div>
+  </section>
+
+  <div class="promo-divider" aria-hidden="true"></div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       HOW IT WORKS
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="promo-section" id="how" aria-labelledby="how-heading">
+
+    <div class="promo-section-head" data-animate data-hidden>
+      <span class="section-eyebrow" data-i18n="promo_how_eyebrow">كيف يعمل؟</span>
+      <h2 class="promo-section-title" id="how-heading" data-i18n="promo_how_title">ثلاث خطوات بسيطة</h2>
+      <p class="promo-section-sub" data-i18n="promo_how_sub">من النص إلى الصوت — في أقل من دقيقة</p>
+    </div>
+
+    <div class="steps-wrap">
+      <div class="steps-connector" aria-hidden="true"></div>
+      <div class="steps-row">
+
+        <div class="step-card" data-animate data-hidden data-stagger=".0s">
+          <div class="step-num" aria-label="الخطوة الأولى">
+            <span class="step-icon" aria-hidden="true">✍️</span>
+          </div>
+          <h3 class="step-title" data-i18n="promo_s1_title">اكتب نصّك</h3>
+          <p class="step-desc"  data-i18n="promo_s1_desc">
+            الصق أي نص — عربي أو إنجليزي أو أي لغة أخرى — حتى 5000 حرف
+          </p>
+        </div>
+
+        <div class="step-card" data-animate data-hidden data-stagger=".15s">
+          <div class="step-num" aria-label="الخطوة الثانية">
+            <span class="step-icon" aria-hidden="true">🎤</span>
+          </div>
+          <h3 class="step-title" data-i18n="promo_s2_title">اختر الصوت</h3>
+          <p class="step-desc"  data-i18n="promo_s2_desc">
+            12 صوتاً بلغات ولهجات متعددة — مع معاينة فورية قبل التحويل
+          </p>
+        </div>
+
+        <div class="step-card" data-animate data-hidden data-stagger=".30s">
+          <div class="step-num" aria-label="الخطوة الثالثة">
+            <span class="step-icon" aria-hidden="true">🎧</span>
+          </div>
+          <h3 class="step-title" data-i18n="promo_s3_title">استمع وحمّل</h3>
+          <p class="step-desc"  data-i18n="promo_s3_desc">
+            صوت جاهز في ثوانٍ — شغّله مباشرة، حمّله، أو شاركه برابط
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="promo-divider" aria-hidden="true"></div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       VOICES SHOWCASE
+  ══════════════════════════════════════════════════════════════════════ -->
+  <section class="promo-section" id="voices" aria-labelledby="voices-heading">
+
+    <div class="promo-section-head" data-animate data-hidden>
+      <span class="section-eyebrow" data-i18n="promo_voices_eyebrow">الأصوات</span>
+      <h2 class="promo-section-title" id="voices-heading" data-i18n="promo_voices_title">تشكيلة الأصوات</h2>
+      <p class="promo-section-sub" data-i18n="promo_voices_sub">
+        أصوات Microsoft Neural TTS — طبيعية، واضحة، وعالية الجودة
+      </p>
+    </div>
+
+    <div class="voices-grid">
+
+      <!-- Arabic voices -->
+      <div class="voice-card v-female" data-animate data-hidden data-stagger=".04s">
+        <div class="voice-avatar" aria-hidden="true">👩</div>
+        <div class="voice-name">سلمى</div>
+        <div class="voice-locale">ar-EG · مصر</div>
+        <span class="voice-gender-badge" data-i18n="promo_female">أنثى</span>
+      </div>
+
+      <div class="voice-card v-male" data-animate data-hidden data-stagger=".08s">
+        <div class="voice-avatar" aria-hidden="true">👨</div>
+        <div class="voice-name">شاكر</div>
+        <div class="voice-locale">ar-EG · مصر</div>
+        <span class="voice-gender-badge" data-i18n="promo_male">ذكر</span>
+      </div>
+
+      <div class="voice-card v-female" data-animate data-hidden data-stagger=".12s">
+        <div class="voice-avatar" aria-hidden="true">👩</div>
+        <div class="voice-name">زارية</div>
+        <div class="voice-locale">ar-SA · السعودية</div>
+        <span class="voice-gender-badge" data-i18n="promo_female">أنثى</span>
+      </div>
+
+      <div class="voice-card v-male" data-animate data-hidden data-stagger=".16s">
+        <div class="voice-avatar" aria-hidden="true">👨</div>
+        <div class="voice-name">حامد</div>
+        <div class="voice-locale">ar-SA · السعودية</div>
+        <span class="voice-gender-badge" data-i18n="promo_male">ذكر</span>
+      </div>
+
+      <!-- English voices -->
+      <div class="voice-card v-male" data-animate data-hidden data-stagger=".04s">
+        <div class="voice-avatar" aria-hidden="true">👨</div>
+        <div class="voice-name">Guy</div>
+        <div class="voice-locale">en-US · USA</div>
+        <span class="voice-gender-badge" data-i18n="promo_male_en">Male</span>
+      </div>
+
+      <div class="voice-card v-female" data-animate data-hidden data-stagger=".08s">
+        <div class="voice-avatar" aria-hidden="true">👩</div>
+        <div class="voice-name">Jenny</div>
+        <div class="voice-locale">en-US · USA</div>
+        <span class="voice-gender-badge" data-i18n="promo_female_en">Female</span>
+      </div>
+
+      <div class="voice-card v-male" data-animate data-hidden data-stagger=".12s">
+        <div class="voice-avatar" aria-hidden="true">👨</div>
+        <div class="voice-name">Ryan</div>
+        <div class="voice-locale">en-GB · UK</div>
+        <span class="voice-gender-badge" data-i18n="promo_male_en">Male</span>
+      </div>
+
+      <div class="voice-card v-female" data-animate data-hidden data-stagger=".16s">
+        <div class="voice-avatar" aria-hidden="true">👩</div>
+        <div class="voice-name">Sonia</div>
+        <div class="voice-locale">en-GB · UK</div>
+        <span class="voice-gender-badge" data-i18n="promo_female_en">Female</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       CTA BANNER
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="promo-cta-section" data-animate data-hidden>
+    <h2 class="cta-heading">
+      <span data-i18n="promo_cta_h1">ابدأ رحلتك الصوتية</span><br />
+      <span class="grad" data-i18n="promo_cta_h2">الآن — مجاناً</span>
+    </h2>
+    <p class="cta-sub" data-i18n="promo_cta_sub">
+      لا بطاقة ائتمانية · لا قيود · لا تنتظر
+    </p>
+    <div class="cta-actions">
+      <a href="/register" class="btn btn-primary btn-lg" data-i18n="promo_cta_btn">
+        أنشئ حسابك مجاناً
+      </a>
+      <a href="/login" class="cta-secondary-link" data-i18n="promo_cta_login">
+        لديك حساب بالفعل؟ سجّل الدخول
+      </a>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════════════════════ -->
+  <footer class="promo-footer" role="contentinfo">
+    <a class="brand" href="/" style="font-size:.95rem" aria-label="VoiceForge">
+      <span class="brand-icon" style="width:22px;height:22px" aria-hidden="true">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3a9 9 0 0 1 9 9 9 9 0 0 1-9 9A9 9 0 0 1 3 12a9 9 0 0 1 9-9zm0 2a7 7 0 1 0 0 14A7 7 0 0 0 12 5zm-1 3h2v8h-2zm-4 2h2v4H7zm8 0h2v4h-2z"/>
+        </svg>
+      </span>
+      VoiceForge
+    </a>
+
+    <nav class="footer-links" aria-label="روابط التذييل">
+      <a href="/register" data-i18n="promo_footer_signup">إنشاء حساب</a>
+      <a href="/login"    data-i18n="promo_footer_login">تسجيل الدخول</a>
+      <a href="https://github.com/rany2/edge-tts" target="_blank" rel="noopener noreferrer">edge-tts</a>
+      <a href="https://fastapi.tiangolo.com"       target="_blank" rel="noopener noreferrer">FastAPI</a>
+    </nav>
+
+    <p class="footer-copy" data-i18n="promo_footer_copy">© 2025 VoiceForge · مجاني ومفتوح المصدر</p>
+  </footer>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/promo.js"></script>
+</body>
+</html>

@@ -182,6 +182,11 @@ def share_page(uuid: str) -> FileResponse:
     return _page("share.html")
 
 
+@app.get("/promo", include_in_schema=False)
+def promo_page() -> FileResponse:
+    return _page("promo.html")
+
+
 # ── Health check — IDEA-31 ────────────────────────────────────────────────────
 
 @app.get("/health", tags=["meta"])

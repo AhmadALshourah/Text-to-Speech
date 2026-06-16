@@ -11,6 +11,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
   /* Brand colours */
+  --accent:  #6366F1;          /* primary accent alias — used by promo & shared components */
   --indigo:  #5B5EF4;
   --violet:  #7C3AED;
   --purple:  #A855F7;

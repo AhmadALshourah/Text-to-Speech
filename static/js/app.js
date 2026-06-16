@@ -577,6 +577,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Buttons previously using inline onclick attributes
   document.getElementById("previewBtn")?.addEventListener("click", previewVoice);
   document.getElementById("ssmlToggleBtn")?.addEventListener("click", toggleSSML);
+  document.getElementById("voiceRetryBtn")?.addEventListener("click", loadVoices);
 
   // Save-prefs button
   document.getElementById("savePrefsBtn")?.addEventListener("click", savePreferences);
